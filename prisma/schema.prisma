@@ -38,6 +38,7 @@ model User {
   userAchievements UserAchievement[]
   sentReports      Report[]         @relation("Reporter")
   receivedReports  Report[]         @relation("ReportedUser")
+  gameScores       GameScore[]
 }
 
 model Session {
@@ -80,6 +81,7 @@ model Game {
   collections      CollectionGame[]
   comments         Comment[]
   reports          Report[]
+  gameScores       GameScore[]
 
   @@index([hidden, featured, createdAt])
   @@index([hidden, createdAt])
@@ -114,6 +116,24 @@ model PlayHistory {
   @@unique([userId, gameId])
   @@index([userId, lastPlayed])
   @@index([gameId])
+}
+
+// Game scores for leaderboards
+model GameScore {
+  id        String   @id @default(cuid())
+  userId    String?  // null for anonymous players
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  score     Int
+  wave      Int?     // game-specific: wave reached
+  metadata  String?  // JSON for additional game-specific data
+  playerName String? // for anonymous players
+  createdAt DateTime @default(now())
+
+  @@index([gameId, score])
+  @@index([userId, gameId])
+  @@index([gameId, createdAt])
 }
 
 model Review {
