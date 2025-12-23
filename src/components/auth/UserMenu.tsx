@@ -32,7 +32,7 @@ export function UserMenu() {
 
   if (isLoading) {
     return (
-      <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-800" />
+      <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
     );
   }
 
@@ -61,16 +61,16 @@ export function UserMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl">
-          <div className="border-b border-zinc-800 p-3">
-            <p className="font-medium text-white">{user.username}</p>
-            <p className="text-sm text-zinc-400">{user.email}</p>
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="border-b border-zinc-200 p-3 dark:border-zinc-800">
+            <p className="font-medium text-zinc-900 dark:text-white">{user.username}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{user.email}</p>
           </div>
 
           <div className="p-1">
             <Link
               href="/library"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
               onClick={() => setIsOpen(false)}
             >
               <svg
@@ -87,7 +87,7 @@ export function UserMenu() {
             {user.role === 'ADMIN' && (
               <Link
                 href="/admin"
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-zinc-800"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 onClick={() => setIsOpen(false)}
               >
                 <svg
@@ -107,10 +107,10 @@ export function UserMenu() {
             )}
           </div>
 
-          <div className="border-t border-zinc-800 p-1">
+          <div className="border-t border-zinc-200 p-1 dark:border-zinc-800">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-zinc-800"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-zinc-100 dark:text-red-400 dark:hover:bg-zinc-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -3,35 +3,80 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* Dark mode (default) */
+  :root,
+  .dark {
     --background: #09090b;
     --foreground: #fafafa;
+    --card: #18181b;
+    --card-foreground: #fafafa;
+    --border: #27272a;
+    --input: #27272a;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
+  }
+
+  /* Light mode */
+  .light {
+    --background: #ffffff;
+    --foreground: #09090b;
+    --card: #f4f4f5;
+    --card-foreground: #09090b;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
   }
 
   * {
-    @apply border-zinc-800;
+    border-color: var(--border);
   }
 
   body {
-    @apply bg-zinc-950 text-zinc-100;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
+  /* Custom scrollbar - dark */
+  .dark ::-webkit-scrollbar,
+  :root ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
-  ::-webkit-scrollbar-track {
-    @apply bg-zinc-900;
+  .dark ::-webkit-scrollbar-track,
+  :root ::-webkit-scrollbar-track {
+    background-color: #18181b;
   }
 
-  ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-zinc-700;
+  .dark ::-webkit-scrollbar-thumb,
+  :root ::-webkit-scrollbar-thumb {
+    background-color: #3f3f46;
+    border-radius: 9999px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-zinc-600;
+  .dark ::-webkit-scrollbar-thumb:hover,
+  :root ::-webkit-scrollbar-thumb:hover {
+    background-color: #52525b;
+  }
+
+  /* Custom scrollbar - light */
+  .light ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .light ::-webkit-scrollbar-track {
+    background-color: #f4f4f5;
+  }
+
+  .light ::-webkit-scrollbar-thumb {
+    background-color: #d4d4d8;
+    border-radius: 9999px;
+  }
+
+  .light ::-webkit-scrollbar-thumb:hover {
+    background-color: #a1a1aa;
   }
 }
 

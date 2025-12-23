@@ -13,7 +13,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   ];
 
   return (
-    <div className={cn('flex items-center gap-1 rounded-lg bg-zinc-800 p-1', className)}>
+    <div className={cn('flex items-center gap-1 rounded-lg bg-zinc-200 p-1 dark:bg-zinc-800', className)}>
       {themes.map(({ value, icon: Icon, label }) => (
         <button
           key={value}
@@ -21,8 +21,8 @@ export function ThemeToggle({ className }: { className?: string }) {
           className={cn(
             'rounded-md p-2 transition-colors',
             theme === value
-              ? 'bg-zinc-700 text-zinc-100'
-              : 'text-zinc-400 hover:text-zinc-100'
+              ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
+              : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
           )}
           title={label}
         >

@@ -12,26 +12,41 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('dark');
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'dark';
+  const saved = localStorage.getItem('playforge-theme') as Theme | null;
+  return saved || 'dark';
+}
 
+function resolveTheme(theme: Theme): 'dark' | 'light' {
+  if (typeof window === 'undefined') return 'dark';
+  if (theme === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return theme;
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>('dark');
+  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('dark');
+  const [mounted, setMounted] = useState(false);
+
+  // Load theme on mount
   useEffect(() => {
-    // Load saved theme
-    const saved = localStorage.getItem('playforge-theme') as Theme | null;
-    if (saved) {
-      setTheme(saved);
-    }
+    const initialTheme = getInitialTheme();
+    setTheme(initialTheme);
+    const resolved = resolveTheme(initialTheme);
+    setResolvedTheme(resolved);
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(resolved);
+    setMounted(true);
   }, []);
 
+  // Update theme when changed
   useEffect(() => {
-    // Resolve theme
-    let resolved: 'dark' | 'light';
-    if (theme === 'system') {
-      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    } else {
-      resolved = theme;
-    }
+    if (!mounted) return;
+
+    const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
 
     // Apply theme to document
@@ -40,7 +55,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Save preference
     localStorage.setItem('playforge-theme', theme);
-  }, [theme]);
+  }, [theme, mounted]);
 
   useEffect(() => {
     // Listen for system theme changes
