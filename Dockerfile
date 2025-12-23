@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Set dummy DATABASE_URL for prisma generate during build (no actual connection needed)
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -37,16 +40,13 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
-
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV DATABASE_URL="file:/app/data/playforge.db"
 
+# DATABASE_URL should be provided at runtime via environment variable
 # Run migrations and start server
 CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
