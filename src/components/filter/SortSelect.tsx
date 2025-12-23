@@ -5,6 +5,8 @@ import { Select } from '@/components/ui/Select';
 
 const sortOptions = [
   { value: 'featured', label: 'Featured' },
+  { value: 'top-rated', label: 'Top Rated' },
+  { value: 'most-reviewed', label: 'Most Reviewed' },
   { value: 'newest', label: 'Newest' },
   { value: 'oldest', label: 'Oldest' },
   { value: 'a-z', label: 'A-Z' },

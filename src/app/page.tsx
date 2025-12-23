@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';
-import { GameGrid } from '@/components/game';
+import { GameGrid, InfiniteGameGrid } from '@/components/game';
 import { SearchBar } from '@/components/search/SearchBar';
 import { FilterSidebar, MobileFilterDrawer, SortSelect } from '@/components/filter';
 import { GameGridSkeleton, SearchBarSkeleton } from '@/components/ui/Skeleton';
@@ -16,7 +16,6 @@ interface HomePageProps {
     status?: string | string[];
     tag?: string | string[];
     sort?: string;
-    page?: string;
   }>;
 }
 
@@ -64,11 +63,15 @@ function transformGame(game: {
   };
 }
 
-type SortOption = 'featured' | 'newest' | 'oldest' | 'a-z' | 'z-a';
+type SortOption = 'featured' | 'newest' | 'oldest' | 'a-z' | 'z-a' | 'top-rated' | 'most-reviewed';
 
-function sortGames(games: (GameEntry & { createdAt: Date })[], sort: SortOption) {
+function sortGames(games: (GameEntry & { createdAt: Date; averageRating?: number; reviewCount?: number })[], sort: SortOption) {
   const sorted = [...games];
   switch (sort) {
+    case 'top-rated':
+      return sorted.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+    case 'most-reviewed':
+      return sorted.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0));
     case 'newest':
       return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     case 'oldest':
@@ -202,7 +205,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   };
 
   const sort = (params.sort || 'featured') as SortOption;
-  const currentPage = parseInt(params.page || '1', 10);
 
   const hasFilters = filterParams.search || filterParams.size.length > 0 ||
                      filterParams.type.length > 0 || filterParams.status.length > 0 ||
@@ -214,12 +216,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     getAllTags(),
   ]);
 
-  // Sort and paginate
+  // Sort and paginate for initial load
   const sortedGames = sortGames(allGames, sort);
   const totalGames = sortedGames.length;
-  const totalPages = Math.ceil(totalGames / GAMES_PER_PAGE);
-  const startIndex = (currentPage - 1) * GAMES_PER_PAGE;
-  const paginatedGames = sortedGames.slice(startIndex, startIndex + GAMES_PER_PAGE);
+  const initialGames = sortedGames.slice(0, GAMES_PER_PAGE);
+  const hasMore = totalGames > GAMES_PER_PAGE;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -278,8 +279,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             <Suspense fallback={<GameGridSkeleton />}>
-              <GameGrid
-                games={paginatedGames}
+              <InfiniteGameGrid
+                initialGames={initialGames}
+                initialHasMore={hasMore}
+                totalGames={totalGames}
                 emptyMessage={
                   hasFilters
                     ? 'No games match your search criteria.'
@@ -287,100 +290,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 }
               />
             </Suspense>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <PaginationWrapper
-                currentPage={currentPage}
-                totalPages={totalPages}
-                searchParams={params}
-              />
-            )}
           </section>
         </div>
       </div>
     </div>
-  );
-}
-
-// Client component wrapper for pagination
-function PaginationWrapper({
-  currentPage,
-  totalPages,
-  searchParams,
-}: {
-  currentPage: number;
-  totalPages: number;
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams();
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (key === 'page') return;
-      if (Array.isArray(value)) {
-        value.forEach((v) => params.append(key, v));
-      } else if (value) {
-        params.set(key, value);
-      }
-    });
-    if (page > 1) {
-      params.set('page', String(page));
-    }
-    return `/?${params.toString()}`;
-  };
-
-  return (
-    <nav className="mt-8 flex items-center justify-center gap-1">
-      {/* Previous */}
-      <a
-        href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'}
-        className={`flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 ${
-          currentPage === 1 ? 'pointer-events-none opacity-50' : ''
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-          <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
-        </svg>
-      </a>
-
-      {/* Page numbers */}
-      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-        let page: number;
-        if (totalPages <= 5) {
-          page = i + 1;
-        } else if (currentPage <= 3) {
-          page = i + 1;
-        } else if (currentPage >= totalPages - 2) {
-          page = totalPages - 4 + i;
-        } else {
-          page = currentPage - 2 + i;
-        }
-        return (
-          <a
-            key={page}
-            href={buildPageUrl(page)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-              page === currentPage
-                ? 'bg-blue-500 text-white'
-                : 'border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
-            }`}
-          >
-            {page}
-          </a>
-        );
-      })}
-
-      {/* Next */}
-      <a
-        href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'}
-        className={`flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 ${
-          currentPage === totalPages ? 'pointer-events-none opacity-50' : ''
-        }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-          <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
-        </svg>
-      </a>
-    </nav>
   );
 }

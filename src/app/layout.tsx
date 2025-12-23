@@ -5,6 +5,7 @@ import { Header, Footer } from '@/components/layout';
 import { LibraryProvider } from '@/features/library/LibraryContext';
 import { AuthProvider } from '@/features/auth/AuthContext';
 import { ThemeProvider } from '@/features/theme';
+import { KeyboardShortcuts } from '@/components/KeyboardShortcuts';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,6 +66,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
               </div>
+              <KeyboardShortcuts />
             </LibraryProvider>
           </AuthProvider>
         </ThemeProvider>

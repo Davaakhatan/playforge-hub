@@ -3,8 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import type { GameEntry } from '@/types';
 
-// Helper to transform Prisma game to GameEntry
-function transformGame(game: {
+const GAMES_PER_PAGE = 12;
+
+type GameWithReviews = {
   id: string;
   slug: string;
   title: string;
@@ -23,7 +24,17 @@ function transformGame(game: {
   version: string | null;
   featured: boolean;
   hidden: boolean;
-}): GameEntry {
+  createdAt: Date;
+  reviews?: { rating: number }[];
+};
+
+// Helper to transform Prisma game to GameEntry
+function transformGame(game: GameWithReviews): GameEntry & { createdAt: string; averageRating: number; reviewCount: number } {
+  const reviewCount = game.reviews?.length || 0;
+  const averageRating = reviewCount > 0
+    ? game.reviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : 0;
+
   return {
     id: game.id,
     slug: game.slug,
@@ -43,7 +54,40 @@ function transformGame(game: {
     version: game.version ?? undefined,
     featured: game.featured,
     hidden: game.hidden,
+    createdAt: game.createdAt.toISOString(),
+    averageRating,
+    reviewCount,
   };
+}
+
+type SortOption = 'featured' | 'newest' | 'oldest' | 'a-z' | 'z-a' | 'top-rated' | 'most-reviewed';
+
+function sortGames(
+  games: (GameEntry & { createdAt: string; averageRating: number; reviewCount: number })[],
+  sort: SortOption
+) {
+  const sorted = [...games];
+  switch (sort) {
+    case 'top-rated':
+      return sorted.sort((a, b) => b.averageRating - a.averageRating);
+    case 'most-reviewed':
+      return sorted.sort((a, b) => b.reviewCount - a.reviewCount);
+    case 'newest':
+      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case 'oldest':
+      return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case 'a-z':
+      return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case 'z-a':
+      return sorted.sort((a, b) => b.title.localeCompare(a.title));
+    case 'featured':
+    default:
+      return sorted.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -54,17 +98,22 @@ export async function GET(request: NextRequest) {
     const size = searchParams.getAll('size');
     const type = searchParams.getAll('type');
     const status = searchParams.getAll('status');
+    const tag = searchParams.getAll('tag');
     const featured = searchParams.get('featured');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const sort = (searchParams.get('sort') || 'featured') as SortOption;
+    const paginate = searchParams.get('paginate') === 'true';
 
     // If slug is provided, return single game
     if (slug) {
       const game = await prisma.game.findUnique({
         where: { slug, hidden: false },
+        include: { reviews: { select: { rating: true } } },
       });
       if (!game) {
         return NextResponse.json({ error: 'Game not found' }, { status: 404 });
       }
-      return NextResponse.json(transformGame(game));
+      return NextResponse.json(transformGame(game as GameWithReviews));
     }
 
     // Build where clause
@@ -96,10 +145,40 @@ export async function GET(request: NextRequest) {
 
     const games = await prisma.game.findMany({
       where,
-      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+      include: { reviews: { select: { rating: true } } },
     });
 
-    return NextResponse.json(games.map(transformGame));
+    // Filter by tags if provided
+    let filteredGames = games;
+    if (tag.length > 0) {
+      filteredGames = games.filter((game) => {
+        const gameTags = JSON.parse(game.tags) as string[];
+        return tag.some((t) => gameTags.includes(t));
+      });
+    }
+
+    const transformedGames = filteredGames.map((g) => transformGame(g as GameWithReviews));
+    const sortedGames = sortGames(transformedGames, sort);
+
+    // If pagination requested, return paginated response
+    if (paginate) {
+      const totalGames = sortedGames.length;
+      const totalPages = Math.ceil(totalGames / GAMES_PER_PAGE);
+      const startIndex = (page - 1) * GAMES_PER_PAGE;
+      const paginatedGames = sortedGames.slice(startIndex, startIndex + GAMES_PER_PAGE);
+
+      return NextResponse.json({
+        games: paginatedGames,
+        pagination: {
+          page,
+          totalPages,
+          totalGames,
+          hasMore: page < totalPages,
+        },
+      });
+    }
+
+    return NextResponse.json(sortedGames);
   } catch (error) {
     console.error('Get games error:', error);
     return NextResponse.json(
