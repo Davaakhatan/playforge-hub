@@ -5,6 +5,10 @@ import Link from 'next/link';
 import type { GameEntry } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { useLibrary } from '@/features/library/LibraryContext';
+import { useAuth } from '@/features/auth/AuthContext';
+
+const FREE_PLAY_LIMIT = 3;
+const PLAY_COUNT_KEY = 'playforge_play_count';
 
 interface GamePlayerProps {
   game: GameEntry;
@@ -14,18 +18,54 @@ export function GamePlayer({ game }: GamePlayerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [playCount, setPlayCount] = useState(0);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const { recordPlay } = useLibrary();
+  const { user, isLoading: authLoading } = useAuth();
 
-  // Record play when component mounts
+  // Check play count on mount
   useEffect(() => {
+    if (authLoading) return;
+
+    // Logged in users have unlimited plays
+    if (user) {
+      setShowSignupPrompt(false);
+      return;
+    }
+
+    // Check localStorage for anonymous play count
+    const storedCount = parseInt(localStorage.getItem(PLAY_COUNT_KEY) || '0', 10);
+    setPlayCount(storedCount);
+
+    if (storedCount >= FREE_PLAY_LIMIT) {
+      setShowSignupPrompt(true);
+    }
+  }, [user, authLoading]);
+
+  // Record play when component mounts (only if allowed) - runs once
+  useEffect(() => {
+    if (authLoading) return;
+    if (showSignupPrompt) return;
+
+    // Record in library
     recordPlay(game.id);
+
+    // Increment play count for anonymous users (only once per game load)
+    if (!user) {
+      const currentCount = parseInt(localStorage.getItem(PLAY_COUNT_KEY) || '0', 10);
+      const newCount = currentCount + 1;
+      localStorage.setItem(PLAY_COUNT_KEY, newCount.toString());
+      setPlayCount(newCount);
+    }
+
     // Track play count in database
     fetch(`/api/games/${game.id}/analytics`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'play' }),
     }).catch(console.error);
-  }, [game.id, recordPlay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.id, authLoading]);
 
   const toggleFullscreen = async () => {
     const gameContainer = document.getElementById('game-container');
@@ -88,6 +128,11 @@ export function GamePlayer({ game }: GamePlayerProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {!user && playCount > 0 && playCount < FREE_PLAY_LIMIT && (
+            <span className="text-xs text-zinc-500">
+              {FREE_PLAY_LIMIT - playCount} free {FREE_PLAY_LIMIT - playCount === 1 ? 'play' : 'plays'} left
+            </span>
+          )}
           <Button variant="ghost" size="sm" onClick={toggleFullscreen}>
             {isFullscreen ? (
               <svg
@@ -135,7 +180,50 @@ export function GamePlayer({ game }: GamePlayerProps) {
           </div>
         )}
 
-        {hasError ? (
+        {showSignupPrompt ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/95">
+            <div className="flex max-w-md flex-col items-center gap-6 rounded-2xl bg-zinc-900 p-8 text-center">
+              <div className="rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 p-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-10 w-10 text-white"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.484 2.17a.75.75 0 011.032 0 11.209 11.209 0 007.877 3.08.75.75 0 01.722.515 12.74 12.74 0 01.635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 01-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 01.722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zM12 15a.75.75 0 000 1.5h.007a.75.75 0 000-1.5H12z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white">Free Plays Used Up!</h3>
+                <p className="mt-2 text-zinc-400">
+                  You&apos;ve enjoyed {FREE_PLAY_LIMIT} free games. Sign up to unlock unlimited plays and more features!
+                </p>
+              </div>
+              <div className="flex w-full flex-col gap-3">
+                <Link href="/register" className="w-full">
+                  <Button size="lg" className="w-full">
+                    Sign Up Free
+                  </Button>
+                </Link>
+                <Link href="/login" className="w-full">
+                  <Button variant="secondary" size="lg" className="w-full">
+                    Already have an account? Sign In
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-xs text-zinc-500">
+                Unlimited games • Save progress • Achievements • Leaderboards
+              </p>
+              <Link href={`/games/${game.slug}`} className="text-xs text-zinc-600 hover:text-zinc-400">
+                ← Back to game page
+              </Link>
+            </div>
+          </div>
+        ) : hasError ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="rounded-full bg-red-500/20 p-4">
