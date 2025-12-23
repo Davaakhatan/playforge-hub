@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/Button';
 import { SizeBadge, TypeBadge, StatusBadge, TagBadge } from '@/components/ui/Badge';
-import { FavoriteButton } from '@/components/game/FavoriteButton';
+import { FavoriteButton, ScreenshotGallery } from '@/components/game';
 import { ReviewSection } from '@/components/review';
 import type { GameEntry } from '@/types';
 
@@ -187,24 +187,7 @@ export default async function GamePage({ params }: GamePageProps) {
 
           {/* Screenshots */}
           {game.screenshots && game.screenshots.length > 0 && (
-            <div className="mb-6">
-              <h3 className="mb-3 text-lg font-semibold text-white">Screenshots</h3>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                {game.screenshots.map((screenshot, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-video overflow-hidden rounded-lg bg-zinc-800"
-                  >
-                    <Image
-                      src={screenshot}
-                      alt={`${game.title} screenshot ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ScreenshotGallery screenshots={game.screenshots} title={game.title} />
           )}
 
           {/* Description */}

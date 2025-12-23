@@ -2,8 +2,11 @@ import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';
 import { GameGrid } from '@/components/game';
 import { SearchBar } from '@/components/search/SearchBar';
-import { FilterSidebar } from '@/components/filter/FilterSidebar';
+import { FilterSidebar, MobileFilterDrawer, SortSelect } from '@/components/filter';
+import { GameGridSkeleton, SearchBarSkeleton } from '@/components/ui/Skeleton';
 import type { GameEntry } from '@/types';
+
+const GAMES_PER_PAGE = 12;
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -12,6 +15,8 @@ interface HomePageProps {
     type?: string | string[];
     status?: string | string[];
     tag?: string | string[];
+    sort?: string;
+    page?: string;
   }>;
 }
 
@@ -34,7 +39,8 @@ function transformGame(game: {
   version: string | null;
   featured: boolean;
   hidden: boolean;
-}): GameEntry {
+  createdAt: Date;
+}): GameEntry & { createdAt: Date } {
   return {
     id: game.id,
     slug: game.slug,
@@ -54,7 +60,31 @@ function transformGame(game: {
     version: game.version ?? undefined,
     featured: game.featured,
     hidden: game.hidden,
+    createdAt: game.createdAt,
   };
+}
+
+type SortOption = 'featured' | 'newest' | 'oldest' | 'a-z' | 'z-a';
+
+function sortGames(games: (GameEntry & { createdAt: Date })[], sort: SortOption) {
+  const sorted = [...games];
+  switch (sort) {
+    case 'newest':
+      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case 'oldest':
+      return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case 'a-z':
+      return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case 'z-a':
+      return sorted.sort((a, b) => b.title.localeCompare(a.title));
+    case 'featured':
+    default:
+      return sorted.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }
 }
 
 async function getGames(params: {
@@ -88,7 +118,6 @@ async function getGames(params: {
 
   const games = await prisma.game.findMany({
     where,
-    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
   });
 
   // Filter by tags if provided (need to check JSON array)
@@ -140,15 +169,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     tag: toArray(params.tag),
   };
 
+  const sort = (params.sort || 'featured') as SortOption;
+  const currentPage = parseInt(params.page || '1', 10);
+
   const hasFilters = filterParams.search || filterParams.size.length > 0 ||
                      filterParams.type.length > 0 || filterParams.status.length > 0 ||
                      filterParams.tag.length > 0;
 
-  const [games, featuredGames, tags] = await Promise.all([
+  const [allGames, featuredGames, tags] = await Promise.all([
     getGames(filterParams),
     hasFilters ? Promise.resolve([]) : getFeaturedGames(),
     getAllTags(),
   ]);
+
+  // Sort and paginate
+  const sortedGames = sortGames(allGames, sort);
+  const totalGames = sortedGames.length;
+  const totalPages = Math.ceil(totalGames / GAMES_PER_PAGE);
+  const startIndex = (currentPage - 1) * GAMES_PER_PAGE;
+  const paginatedGames = sortedGames.slice(startIndex, startIndex + GAMES_PER_PAGE);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -164,13 +203,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           Your gateway to the best indie games. Play instantly in your browser,
           download, or launch from external platforms.
         </p>
-        <Suspense fallback={<div className="h-12 w-full max-w-xl mx-auto rounded-xl bg-zinc-200 animate-pulse dark:bg-zinc-800" />}>
+        <Suspense fallback={<SearchBarSkeleton />}>
           <SearchBar className="mx-auto max-w-xl" />
         </Suspense>
       </section>
 
       <div className="flex gap-8">
-        {/* Filter Sidebar */}
+        {/* Filter Sidebar - Desktop */}
         <Suspense fallback={null}>
           <FilterSidebar tags={tags} className="hidden w-64 shrink-0 lg:block" />
         </Suspense>
@@ -187,23 +226,129 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
           {/* All Games */}
           <section>
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                {hasFilters ? 'Search Results' : 'All Games'}
-              </h2>
-              <span className="text-sm text-zinc-500">{games.length} games</span>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  {hasFilters ? 'Search Results' : 'All Games'}
+                </h2>
+                <span className="text-sm text-zinc-500">{totalGames} games</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {/* Mobile Filter Button */}
+                <Suspense fallback={null}>
+                  <MobileFilterDrawer tags={tags} />
+                </Suspense>
+                {/* Sort Select */}
+                <Suspense fallback={null}>
+                  <SortSelect />
+                </Suspense>
+              </div>
             </div>
-            <GameGrid
-              games={games}
-              emptyMessage={
-                hasFilters
-                  ? 'No games match your search criteria.'
-                  : 'No games available yet.'
-              }
-            />
+
+            <Suspense fallback={<GameGridSkeleton />}>
+              <GameGrid
+                games={paginatedGames}
+                emptyMessage={
+                  hasFilters
+                    ? 'No games match your search criteria.'
+                    : 'No games available yet.'
+                }
+              />
+            </Suspense>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <PaginationWrapper
+                currentPage={currentPage}
+                totalPages={totalPages}
+                searchParams={params}
+              />
+            )}
           </section>
         </div>
       </div>
     </div>
+  );
+}
+
+// Client component wrapper for pagination
+function PaginationWrapper({
+  currentPage,
+  totalPages,
+  searchParams,
+}: {
+  currentPage: number;
+  totalPages: number;
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const buildPageUrl = (page: number) => {
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (key === 'page') return;
+      if (Array.isArray(value)) {
+        value.forEach((v) => params.append(key, v));
+      } else if (value) {
+        params.set(key, value);
+      }
+    });
+    if (page > 1) {
+      params.set('page', String(page));
+    }
+    return `/?${params.toString()}`;
+  };
+
+  return (
+    <nav className="mt-8 flex items-center justify-center gap-1">
+      {/* Previous */}
+      <a
+        href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'}
+        className={`flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 ${
+          currentPage === 1 ? 'pointer-events-none opacity-50' : ''
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+          <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
+        </svg>
+      </a>
+
+      {/* Page numbers */}
+      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+        let page: number;
+        if (totalPages <= 5) {
+          page = i + 1;
+        } else if (currentPage <= 3) {
+          page = i + 1;
+        } else if (currentPage >= totalPages - 2) {
+          page = totalPages - 4 + i;
+        } else {
+          page = currentPage - 2 + i;
+        }
+        return (
+          <a
+            key={page}
+            href={buildPageUrl(page)}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+              page === currentPage
+                ? 'bg-blue-500 text-white'
+                : 'border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            {page}
+          </a>
+        );
+      })}
+
+      {/* Next */}
+      <a
+        href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'}
+        className={`flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 ${
+          currentPage === totalPages ? 'pointer-events-none opacity-50' : ''
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+          <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
+        </svg>
+      </a>
+    </nav>
   );
 }
