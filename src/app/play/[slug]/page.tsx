@@ -1,19 +1,12 @@
 import { notFound, redirect } from 'next/navigation';
-import { getGameBySlug, getAllGames } from '@/features/catalog';
+import { getGameBySlug } from '@/features/catalog';
 import { GamePlayer } from './GamePlayer';
+
+// Allow dynamic rendering for games added after build
+export const dynamic = 'force-dynamic';
 
 interface PlayPageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const games = await getAllGames();
-  // Only generate static params for web-embed games
-  return games
-    .filter((game) => game.type === 'web-embed')
-    .map((game) => ({
-      slug: game.slug,
-    }));
 }
 
 export async function generateMetadata({ params }: PlayPageProps) {
