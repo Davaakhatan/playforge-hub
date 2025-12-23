@@ -171,7 +171,8 @@ export function GamePlayer({ game }: GamePlayerProps) {
         className="relative flex items-center justify-center bg-black"
         style={{ height: isFullscreen ? '100vh' : 'calc(100vh - 49px)' }}
       >
-        {isLoading && (
+        {/* Only show loading when actually loading the game (not when showing signup prompt or error) */}
+        {isLoading && !showSignupPrompt && !hasError && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
             <div className="flex flex-col items-center gap-4">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
@@ -181,7 +182,7 @@ export function GamePlayer({ game }: GamePlayerProps) {
         )}
 
         {showSignupPrompt ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/95">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/95">
             <div className="flex max-w-md flex-col items-center gap-6 rounded-2xl bg-zinc-900 p-8 text-center">
               <div className="rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 p-4">
                 <svg
