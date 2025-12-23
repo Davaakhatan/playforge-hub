@@ -30,11 +30,12 @@ export function Drawer({ isOpen, onClose, title, children, className }: DrawerPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby={title ? 'drawer-title' : undefined}>
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Drawer */}
@@ -46,18 +47,19 @@ export function Drawer({ isOpen, onClose, title, children, className }: DrawerPr
         )}
       >
         {/* Handle */}
-        <div className="absolute left-1/2 top-3 h-1 w-10 -translate-x-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+        <div className="absolute left-1/2 top-3 h-1 w-10 -translate-x-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" aria-hidden="true" />
 
         {/* Header */}
         <div className="mb-4 flex items-center justify-between pt-2">
           {title && (
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">{title}</h2>
+            <h2 id="drawer-title" className="text-lg font-semibold text-zinc-900 dark:text-white">{title}</h2>
           )}
           <button
             onClick={onClose}
             className="ml-auto rounded-full p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            aria-label="Close drawer"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
               <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clipRule="evenodd" />
             </svg>
           </button>

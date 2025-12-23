@@ -1,0 +1,10 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="#09090b"/>
+  <text x="256" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="220" font-weight="bold" fill="url(#iconGrad512)" text-anchor="middle">P</text>
+</svg>

@@ -29,6 +29,10 @@ export interface GameEntry {
   // Feature Flags
   featured?: boolean;
   hidden?: boolean;
+
+  // Stats (optional, populated when needed)
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 // Local Library - Stored in localStorage

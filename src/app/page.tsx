@@ -118,6 +118,11 @@ async function getGames(params: {
 
   const games = await prisma.game.findMany({
     where,
+    include: {
+      reviews: {
+        select: { rating: true },
+      },
+    },
   });
 
   // Filter by tags if provided (need to check JSON array)
@@ -129,15 +134,42 @@ async function getGames(params: {
     });
   }
 
-  return filteredGames.map(transformGame);
+  return filteredGames.map((game) => {
+    const transformed = transformGame(game);
+    const reviewCount = game.reviews.length;
+    const averageRating = reviewCount > 0
+      ? game.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+    return {
+      ...transformed,
+      averageRating,
+      reviewCount,
+    };
+  });
 }
 
 async function getFeaturedGames() {
   const games = await prisma.game.findMany({
     where: { hidden: false, featured: true },
     orderBy: { createdAt: 'desc' },
+    include: {
+      reviews: {
+        select: { rating: true },
+      },
+    },
   });
-  return games.map(transformGame);
+  return games.map((game) => {
+    const transformed = transformGame(game);
+    const reviewCount = game.reviews.length;
+    const averageRating = reviewCount > 0
+      ? game.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+    return {
+      ...transformed,
+      averageRating,
+      reviewCount,
+    };
+  });
 }
 
 async function getAllTags() {

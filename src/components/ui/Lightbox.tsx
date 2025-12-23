@@ -47,19 +47,26 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose, alt = 'Ima
   if (!isOpen || images.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${alt} gallery, image ${currentIndex + 1} of ${images.length}`}
+    >
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/90"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Close button */}
       <button
         onClick={onClose}
         className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+        aria-label="Close gallery"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
           <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clipRule="evenodd" />
         </svg>
       </button>
@@ -70,16 +77,18 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose, alt = 'Ima
           <button
             onClick={handlePrevious}
             className="absolute left-4 z-10 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
+            aria-label="Previous image"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
               <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
             </svg>
           </button>
           <button
             onClick={handleNext}
             className="absolute right-4 z-10 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
+            aria-label="Next image"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
               <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
             </svg>
           </button>
@@ -106,7 +115,7 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose, alt = 'Ima
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="absolute bottom-16 left-1/2 flex -translate-x-1/2 gap-2">
+        <div className="absolute bottom-16 left-1/2 flex -translate-x-1/2 gap-2" role="tablist" aria-label="Image thumbnails">
           {images.map((image, index) => (
             <button
               key={index}
@@ -117,12 +126,16 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose, alt = 'Ima
                   ? 'border-white'
                   : 'border-transparent opacity-50 hover:opacity-100'
               )}
+              role="tab"
+              aria-selected={index === currentIndex}
+              aria-label={`View image ${index + 1}`}
             >
               <Image
                 src={image}
-                alt={`Thumbnail ${index + 1}`}
+                alt=""
                 fill
                 className="object-cover"
+                aria-hidden="true"
               />
             </button>
           ))}

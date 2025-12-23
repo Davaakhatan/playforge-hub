@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { GameEntry } from '@/types';
 import { SizeBadge, TypeBadge } from '@/components/ui/Badge';
+import { Rating } from '@/components/ui/Rating';
 import { cn } from '@/lib/utils';
 
 interface GameCardProps {
@@ -12,8 +13,12 @@ interface GameCardProps {
   className?: string;
 }
 
+// Simple blur placeholder - a gradient SVG encoded as base64
+const blurDataURL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyNzI3MmEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxODE4MWIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyNSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==';
+
 export function GameCard({ game, className }: GameCardProps) {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
     <Link
@@ -41,8 +46,14 @@ export function GameCard({ game, className }: GameCardProps) {
             src={game.thumbnail}
             alt={game.title}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className={cn(
+              'object-cover transition-all duration-300 group-hover:scale-105',
+              imgLoaded ? 'opacity-100' : 'opacity-0'
+            )}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            placeholder="blur"
+            blurDataURL={blurDataURL}
+            onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
           />
         )}
@@ -55,9 +66,18 @@ export function GameCard({ game, className }: GameCardProps) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-2 flex items-start justify-between gap-2">
+        <div className="mb-1 flex items-start justify-between gap-2">
           <h3 className="font-semibold text-zinc-900 line-clamp-1 dark:text-white">{game.title}</h3>
         </div>
+
+        {game.averageRating !== undefined && game.reviewCount !== undefined && game.reviewCount > 0 && (
+          <Rating
+            rating={game.averageRating}
+            reviewCount={game.reviewCount}
+            size="sm"
+            className="mb-2"
+          />
+        )}
 
         <p className="mb-3 text-sm text-zinc-600 line-clamp-2 dark:text-zinc-400">
           {game.shortDescription}

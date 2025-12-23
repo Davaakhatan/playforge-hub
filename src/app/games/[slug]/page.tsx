@@ -154,7 +154,7 @@ export default async function GamePage({ params }: GamePageProps) {
       {/* Back Button */}
       <Link
         href="/"
-        className="mb-6 inline-flex items-center text-sm text-zinc-400 transition-colors hover:text-white"
+        className="mb-6 inline-flex items-center text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -175,7 +175,7 @@ export default async function GamePage({ params }: GamePageProps) {
         {/* Main Content */}
         <div className="lg:col-span-2">
           {/* Hero Image */}
-          <div className="relative mb-6 aspect-video overflow-hidden rounded-xl bg-zinc-800">
+          <div className="relative mb-6 aspect-video overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-800">
             <Image
               src={game.thumbnail}
               alt={game.title}
@@ -192,24 +192,24 @@ export default async function GamePage({ params }: GamePageProps) {
 
           {/* Description */}
           <div>
-            <h3 className="mb-3 text-lg font-semibold text-white">About This Game</h3>
-            <p className="whitespace-pre-wrap text-zinc-400">{game.longDescription}</p>
+            <h3 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-white">About This Game</h3>
+            <p className="whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">{game.longDescription}</p>
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-8 border-t border-zinc-800 pt-8">
+          <div className="mt-8 border-t border-zinc-200 pt-8 dark:border-zinc-800">
             <ReviewSection gameId={game.id} />
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24 space-y-6 rounded-xl bg-zinc-900 p-6">
+          <div className="sticky top-24 space-y-6 rounded-xl bg-zinc-100 p-6 dark:bg-zinc-900">
             {/* Title & Developer */}
             <div>
-              <h1 className="mb-1 text-2xl font-bold text-white">{game.title}</h1>
+              <h1 className="mb-1 text-2xl font-bold text-zinc-900 dark:text-white">{game.title}</h1>
               {game.developer && (
-                <p className="text-sm text-zinc-400">by {game.developer}</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">by {game.developer}</p>
               )}
             </div>
 
@@ -229,7 +229,7 @@ export default async function GamePage({ params }: GamePageProps) {
             {/* Tags */}
             {game.tags.length > 0 && (
               <div>
-                <h4 className="mb-2 text-sm font-medium text-zinc-400">Tags</h4>
+                <h4 className="mb-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">Tags</h4>
                 <div className="flex flex-wrap gap-2">
                   {game.tags.map((tag) => (
                     <TagBadge key={tag} tag={tag} />
@@ -239,11 +239,11 @@ export default async function GamePage({ params }: GamePageProps) {
             )}
 
             {/* Metadata */}
-            <div className="space-y-2 border-t border-zinc-800 pt-4 text-sm">
+            <div className="space-y-2 border-t border-zinc-200 pt-4 text-sm dark:border-zinc-800">
               {game.releaseDate && (
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Release Date</span>
-                  <span className="text-zinc-300">
+                  <span className="text-zinc-700 dark:text-zinc-300">
                     {new Date(game.releaseDate).toLocaleDateString()}
                   </span>
                 </div>
@@ -251,13 +251,13 @@ export default async function GamePage({ params }: GamePageProps) {
               {game.version && (
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Version</span>
-                  <span className="text-zinc-300">{game.version}</span>
+                  <span className="text-zinc-700 dark:text-zinc-300">{game.version}</span>
                 </div>
               )}
               {game.platforms && game.platforms.length > 0 && (
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Platforms</span>
-                  <span className="text-zinc-300 capitalize">
+                  <span className="text-zinc-700 capitalize dark:text-zinc-300">
                     {game.platforms.join(', ')}
                   </span>
                 </div>
