@@ -1,11 +1,11 @@
 # Playforge MVP - Task Breakdown
 
-> Status: ✅ COMPLETE (MVP + Extended Features)
-> Last Updated: 2025-12-22
+> Status: COMPLETE (MVP + Extended Features)
+> Last Updated: 2025-12-23
 
 ---
 
-## Phase 1: Foundation ✅ COMPLETE
+## Phase 1: Foundation - COMPLETE
 
 ### 1.1 Project Setup
 
@@ -28,7 +28,7 @@
 
 - [x] Setup Prisma ORM with SQLite
 - [x] Create database schema (User, Session, Game, Favorite, PlayHistory)
-- [x] Add 5 sample game entries via seed script
+- [x] Add sample game entries via seed script
 - [x] Create API routes for data access
 - [x] Implement `getAllGames()` via Prisma
 - [x] Implement `getGameBySlug()` via Prisma
@@ -36,12 +36,12 @@
 
 ---
 
-## Phase 2: Core UI ✅ COMPLETE
+## Phase 2: Core UI - COMPLETE
 
 ### 2.1 Layout Components
 
 - [x] Create root layout with navigation
-- [x] Create header component (logo, nav links, user menu)
+- [x] Create header component (logo, nav links, user menu, theme toggle)
 - [x] Create footer component
 - [x] Setup responsive container
 
@@ -85,7 +85,7 @@
 
 ---
 
-## Phase 3: Features ✅ COMPLETE
+## Phase 3: Features - COMPLETE
 
 ### 3.1 Search System
 
@@ -114,6 +114,7 @@
 - [x] Display favorites section
 - [x] Display recently played section
 - [x] Server sync for logged-in users
+- [x] Require login for library access
 
 ### 3.4 Library Context
 
@@ -142,7 +143,7 @@
 
 ---
 
-## Phase 4: Polish ✅ COMPLETE
+## Phase 4: Polish - COMPLETE
 
 ### 4.1 Error Handling
 
@@ -178,24 +179,14 @@
 - [x] Configure persistent volume for SQLite
 - [x] Create .dockerignore
 
----
+### 4.6 Theme System
 
-## Phase 5: Testing & Documentation (Future)
-
-### 5.1 Testing (Pending)
-
-- [ ] Setup testing framework (Vitest/Jest)
-- [ ] Unit tests for catalog functions
-- [ ] Unit tests for library functions
-- [ ] Component tests for critical UI
-- [ ] E2E test for main user flows
-
-### 5.2 Documentation (Pending)
-
-- [ ] README with setup instructions
-- [ ] Document database schema
-- [ ] Document how to add new games via admin panel
-- [ ] Document Docker deployment process
+- [x] Create ThemeContext provider
+- [x] Implement ThemeToggle component
+- [x] Add CSS variables for light/dark modes
+- [x] Update all components with dark: prefixes
+- [x] Store theme preference in localStorage
+- [x] Support system theme preference
 
 ---
 
@@ -203,27 +194,24 @@
 
 ```text
 Phase 1 (Foundation)
-    ↓
+    |
 Phase 2 (Core UI)
-    ↓
-Phase 3 (Features)  ←→  Can run in parallel
-    ↓
+    |
+Phase 3 (Features)  <->  Can run in parallel
+    |
 Phase 4 (Polish)
-    ↓
-Phase 5 (Testing)
 ```
 
 ---
 
 ## Completion Summary
 
-| Phase   | Status      | Notes                                          |
-| ------- | ----------- | ---------------------------------------------- |
-| Phase 1 | ✅ Complete | SQLite + Prisma (upgraded from static catalog) |
-| Phase 2 | ✅ Complete | All core UI implemented                        |
-| Phase 3 | ✅ Complete | Search, filters, auth, admin panel             |
-| Phase 4 | ✅ Complete | Docker, responsive, error handling             |
-| Phase 5 | 🔄 Pending  | Testing & documentation                        |
+| Phase   | Status     | Notes                                          |
+| ------- | ---------- | ---------------------------------------------- |
+| Phase 1 | Complete   | SQLite + Prisma (upgraded from static catalog) |
+| Phase 2 | Complete   | All core UI implemented                        |
+| Phase 3 | Complete   | Search, filters, auth, admin panel             |
+| Phase 4 | Complete   | Docker, responsive, error handling, themes     |
 
 ---
 
@@ -235,7 +223,8 @@ The following features were added beyond the original MVP scope:
 - **User Authentication**: Session-based auth with bcrypt
 - **Admin Panel**: Full CRUD for games and user management
 - **Docker Support**: Multi-stage build with volume persistence
-- **Blue/Cyan Theme**: Modern gradient color scheme
+- **Dark/Light Theme**: Full theme toggle with CSS variables
+- **Protected Routes**: Library requires login
 
 ---
 
@@ -262,4 +251,5 @@ docker-compose up --build
 
 - MVP is fully functional with extended features
 - Admin panel accessible at `/admin` (requires ADMIN role)
-- First registered user can be promoted to admin via database
+- Default admin: admin@playforge.local / admin123
+- Theme toggle in header (sun/moon/computer icons)

@@ -2,6 +2,7 @@
 
 > Log of key architectural decisions for Playforge
 > Each decision includes context, options considered, and rationale
+> Last Updated: 2025-12-23
 
 ---
 
@@ -50,7 +51,7 @@ Need to choose a React framework for the launcher.
 5. **Astro:** Great for static but less React-native
 
 ### Decision
-Next.js 14+ with App Router.
+Next.js 15 with App Router.
 
 ### Rationale
 - Industry standard
@@ -344,6 +345,41 @@ Docker with multi-stage build and docker-compose.
 ### Consequences
 
 - Need Docker knowledge for deployment
+
+---
+
+## ADR-012: Class-Based Theme Switching
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need to support dark and light themes with user preference.
+
+### Options Considered
+
+1. **CSS media queries only:** No user control
+2. **CSS-in-JS theme:** More complex, potential flash
+3. **Class-based with CSS variables:** Works with Tailwind
+
+### Decision
+
+Class-based theme switching with CSS variables and Tailwind's `dark:` prefix.
+
+### Rationale
+
+- Works natively with Tailwind CSS
+- CSS variables allow global color changes
+- suppressHydrationWarning prevents flash
+- localStorage persists preference
+- System theme supported via matchMedia
+
+### Consequences
+
+- Every component needs both light and dark styles
+- Initial theme set before hydration important
+- Logo needs special handling (invert filter)
 
 ---
 

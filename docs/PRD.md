@@ -1,8 +1,8 @@
 # Playforge MVP - Product Requirements Document
 
-> Version: 2.0.0
+> Version: 2.1.0
 > Status: Implemented
-> Last Updated: 2025-12-22
+> Last Updated: 2025-12-23
 
 ---
 
@@ -14,16 +14,16 @@
 A centralized launcher and discovery hub for indie games, similar to a lightweight "mini-Steam" for web and indie builds.
 
 **Core Principle:**
-> *"The launcher is not the game. The launcher is a catalog, navigator, and launcher — nothing else."*
+> *"The launcher is not the game. The launcher is a catalog, navigator, and launcher - nothing else."*
 
-The hub is **catalog-driven, not page-driven**. Every game—web, download, or external—is defined in a catalog and rendered dynamically by the launcher UI.
+The hub is **catalog-driven, not page-driven**. Every game-web, download, or external-is defined in a catalog and rendered dynamically by the launcher UI.
 
 ---
 
 ## 2. Goals & Non-Goals
 
 ### Goals (MVP)
-- Support many indie games (dozens → hundreds)
+- Support many indie games (dozens to hundreds)
 - Handle small HTML5 games and large external/download games equally
 - Keep the launcher fast, minimal, and scalable
 - No rewrite required as the catalog grows
@@ -32,7 +32,7 @@ The hub is **catalog-driven, not page-driven**. Every game—web, download, or e
 ### Non-Goals (MVP)
 - No multiplayer/social features
 - No payments, DRM, or licensing
-- ~~No user accounts or cloud sync~~ ✅ **Implemented in v2**
+- ~~No user accounts or cloud sync~~ Implemented in v2
 - No in-launcher native game execution
 - No developer submission portal
 - No analytics or tracking
@@ -59,6 +59,7 @@ The hub is **catalog-driven, not page-driven**. Every game—web, download, or e
    - Size (mini / medium / big)
    - Type (web / download / external)
    - Tags (genre, mood)
+   - Status (released / early access / prototype)
 4. Can search by name or tag
 
 ### 4.2 Game Detail Page
@@ -82,8 +83,14 @@ The hub is **catalog-driven, not page-driven**. Every game—web, download, or e
 ### 4.4 My Library
 - Favorite games
 - Recently played games
-- Stored locally (localStorage)
-- No login required
+- Synced to server when logged in
+- Falls back to localStorage for anonymous users
+
+### 4.5 Theme Support
+- Dark mode (default)
+- Light mode
+- System preference option
+- Persistent preference storage
 
 ---
 
@@ -137,7 +144,7 @@ interface GameEntry {
 | External | Steam, itch.io links | New tab navigation |
 | Download | Installer/ZIP files | Direct download link |
 
-### 5.3 Library (Local Storage)
+### 5.3 Library (Server + Local Storage)
 
 ```typescript
 interface LocalLibrary {
@@ -154,6 +161,14 @@ interface LocalLibrary {
 - **Text search:** Title, tags, description
 - **Filters:** Size, type, release status, tags
 - **Sort:** Alphabetical, recently added, featured first
+- **URL-based state:** Filters persist in URL params
+
+### 5.5 Theme System
+
+- Dark mode with zinc/gray backgrounds
+- Light mode with white/light gray backgrounds
+- CSS variables for theme colors
+- Class-based theme switching (`dark` / `light`)
 
 ---
 
@@ -163,80 +178,78 @@ interface LocalLibrary {
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14+ (App Router) |
+| Framework | Next.js 15 (App Router) |
 | Language | TypeScript |
 | Styling | Tailwind CSS |
 | State | React Context + localStorage |
-| Catalog | Static JSON/TS (v0) → API (v1) → CMS (v2) |
+| Database | SQLite with Prisma ORM |
+| Auth | Session-based with bcrypt |
 
 ### 6.2 Folder Structure
 
 ```
-game-hub/
+playforge-hub/
 ├── docs/                    # Documentation & PRD
 ├── memory-bank/             # Project context & decisions
+├── prisma/                  # Database schema and migrations
 ├── src/
 │   ├── app/                 # Next.js App Router pages
-│   │   ├── page.tsx         # Store/home
-│   │   ├── games/
-│   │   │   └── [slug]/
-│   │   │       └── page.tsx # Game detail
-│   │   ├── play/
-│   │   │   └── [slug]/
-│   │   │       └── page.tsx # Game player (iframe)
-│   │   └── library/
-│   │       └── page.tsx     # User library
+│   │   ├── admin/           # Admin panel
+│   │   ├── api/             # API routes
+│   │   ├── games/[slug]/    # Game detail
+│   │   ├── library/         # User library
+│   │   ├── login/           # Login page
+│   │   ├── play/[slug]/     # Game player
+│   │   └── register/        # Register page
 │   ├── components/
-│   │   ├── ui/              # Generic UI components
-│   │   ├── game/            # Game-specific components
-│   │   └── layout/          # Layout components
+│   │   ├── admin/           # Admin components
+│   │   ├── auth/            # Auth components
+│   │   ├── filter/          # Filter sidebar
+│   │   ├── game/            # Game components
+│   │   ├── layout/          # Layout (Header, Footer)
+│   │   ├── search/          # Search bar
+│   │   └── ui/              # Generic UI components
 │   ├── features/
-│   │   ├── catalog/         # Catalog data & hooks
-│   │   ├── library/         # Local library logic
-│   │   └── search/          # Search & filter logic
+│   │   ├── auth/            # Auth context
+│   │   ├── library/         # Library context
+│   │   └── theme/           # Theme context and toggle
 │   ├── lib/                 # Utilities & helpers
 │   └── types/               # TypeScript types
 ├── public/
-│   └── images/              # Static assets
-├── catalog/
-│   └── games.json           # Game catalog (v0)
+│   └── images/              # Static assets (logo, favicon)
 └── package.json
 ```
 
-### 6.3 Catalog Access Pattern
+### 6.3 Theme Implementation
 
 ```typescript
-// Stable API shape (stays same across versions)
-interface CatalogAPI {
-  getAllGames(): Promise<GameEntry[]>;
-  getGameBySlug(slug: string): Promise<GameEntry | null>;
-  searchGames(query: string): Promise<GameEntry[]>;
-  filterGames(filters: FilterOptions): Promise<GameEntry[]>;
-  getFeaturedGames(): Promise<GameEntry[]>;
+// Theme context provides:
+interface ThemeContext {
+  theme: 'dark' | 'light' | 'system';
+  resolvedTheme: 'dark' | 'light';
+  setTheme: (theme: Theme) => void;
+}
+
+// CSS variables in globals.css
+:root, .dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: #09090b;
 }
 ```
 
-**Migration Path:**
-- **v0:** Static JSON import
-- **v1:** Internal API routes (`/api/catalog`)
-- **v2:** External CMS/database
-
-### 6.4 Game Hosting (Separate from Launcher)
-
-| Concern | Approach |
-|---------|----------|
-| Web games | Hosted on separate subdomain (e.g., `games.yourdomain.com`) |
-| Large builds | External hosting (itch.io, S3, etc.) |
-| CDN | Recommended for assets |
-
-### 6.5 Security & Isolation
+### 6.4 Security & Isolation
 
 | Measure | Implementation |
 |---------|----------------|
 | Iframe sandbox | `sandbox="allow-scripts allow-same-origin"` |
-| CSP | Strict Content-Security-Policy headers |
-| Domain isolation | Games on separate origin |
-| Error boundaries | Broken games don't crash launcher |
+| Session Auth | HTTP-only cookies with bcrypt |
+| Admin Protection | Middleware-protected routes |
+| Theme XSS | CSS class-based, no inline styles |
 
 ---
 
@@ -265,7 +278,7 @@ interface CatalogAPI {
 ### Accessibility
 - Keyboard navigation
 - Screen reader support
-- Color contrast compliance
+- Color contrast compliance (both themes)
 
 ### Responsiveness
 - Mobile-first design
@@ -282,26 +295,27 @@ interface CatalogAPI {
 | Catalog fetch failure | Cached fallback + retry |
 | Empty search results | Helpful message + suggestions |
 | Invalid game URL | Error state in player |
+| Theme flash | suppressHydrationWarning + initial class |
 
 ---
 
 ## 9. MVP Milestones
 
-### Phase 1: Foundation ✅ COMPLETE
+### Phase 1: Foundation - COMPLETE
 
 - [x] Project setup (Next.js 15, TypeScript, Tailwind)
 - [x] Folder structure
 - [x] Type definitions
-- [x] SQLite database with Prisma ORM (upgraded from static catalog)
+- [x] SQLite database with Prisma ORM
 
-### Phase 2: Core UI ✅ COMPLETE
+### Phase 2: Core UI - COMPLETE
 
 - [x] Store page (game grid with search/filters)
 - [x] Game detail page
 - [x] Game player (iframe embed)
 - [x] Basic navigation (Header, Footer)
 
-### Phase 3: Features ✅ COMPLETE
+### Phase 3: Features - COMPLETE
 
 - [x] Search functionality (debounced, URL-based)
 - [x] Filter system (size, type, status, tags)
@@ -309,12 +323,13 @@ interface CatalogAPI {
 - [x] User authentication (session-based)
 - [x] Admin panel (games CRUD, user management)
 
-### Phase 4: Polish ✅ COMPLETE
+### Phase 4: Polish - COMPLETE
 
 - [x] Error handling
 - [x] Loading states
 - [x] Responsive design
 - [x] Docker containerization
+- [x] Dark/Light theme toggle
 
 ---
 
@@ -329,12 +344,12 @@ The MVP is successful if:
 | Safety | Web games load in isolated iframes |
 | Stability | Broken games don't crash launcher |
 | Scalability | No refactor needed to grow catalog |
+| Theme Support | Both dark and light modes work correctly |
 
 ---
 
 ## 11. Future Expansion (Post-MVP)
 
-- User accounts + cloud library sync
 - Developer submission portal
 - Search indexing (Meilisearch / Algolia)
 - Playtime analytics
@@ -350,7 +365,6 @@ The MVP is successful if:
 
 - [ ] Domain strategy for game hosting?
 - [ ] CDN provider selection?
-- [ ] Catalog data source for v1?
 
 ---
 

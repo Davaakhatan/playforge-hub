@@ -1,7 +1,7 @@
 # Tech Stack Reference
 
 > Quick reference for technologies used in Playforge
-> Last Updated: 2025-12-22
+> Last Updated: 2025-12-23
 
 ---
 
@@ -135,7 +135,8 @@ src/
 │   └── ui/                 # Generic UI
 ├── features/
 │   ├── auth/               # Auth context
-│   └── library/            # Library context
+│   ├── library/            # Library context
+│   └── theme/              # Theme context and toggle
 ├── lib/
 │   ├── auth.ts             # Auth utilities
 │   ├── prisma.ts           # Prisma client
@@ -215,6 +216,45 @@ SESSION_SECRET="your-secret-key-change-in-production"
 
 ---
 
+## Theme System
+
+### CSS Variables (globals.css)
+
+```css
+:root, .dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --border: #27272a;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #f4f4f5;
+  --border: #e4e4e7;
+}
+```
+
+### Tailwind Configuration
+
+```js
+// tailwind.config.ts
+module.exports = {
+  darkMode: 'class',
+  // ...
+}
+```
+
+### Component Pattern
+
+```tsx
+// Light mode first, dark: prefix for dark mode
+<div className="bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white">
+```
+
+---
+
 ## Deployment Options
 
 | Platform | Command                      | Notes                     |
@@ -236,9 +276,20 @@ SESSION_SECRET="your-secret-key-change-in-production"
 
 ## Color Scheme
 
+### Dark Mode (Default)
+- Background: Zinc (#09090b)
+- Card: Zinc (#18181b)
+- Border: Zinc (#27272a)
+- Text: White/Zinc shades
+
+### Light Mode
+- Background: White (#ffffff)
+- Card: Zinc (#f4f4f5)
+- Border: Zinc (#e4e4e7)
+- Text: Black/Zinc shades
+
+### Accent
 Primary gradient: `from-blue-500 to-cyan-500`
 
 - Primary: Blue (#3B82F6)
 - Secondary: Cyan (#06B6D4)
-- Background: Zinc (#18181B)
-- Text: White/Zinc shades

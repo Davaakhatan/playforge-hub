@@ -2,7 +2,7 @@
 
 > This file provides essential context for AI assistants and new contributors.
 > Status: MVP Complete + Extended Features
-> Last Updated: 2025-12-22
+> Last Updated: 2025-12-23
 
 ---
 
@@ -35,6 +35,8 @@ This means:
 - Local library with favorites and history
 - Server sync for logged-in users
 - Docker containerization
+- Dark/Light theme toggle
+- Protected library (requires login)
 
 ### Tech Stack
 
@@ -46,6 +48,7 @@ This means:
 | Database  | SQLite/Prisma  | Simple, portable, no external services |
 | Auth      | Session-based  | Secure cookies, bcrypt hashing         |
 | State     | React Context  | Simple, sufficient for needs           |
+| Theme     | CSS Variables  | Class-based dark/light switching       |
 
 ---
 
@@ -76,6 +79,11 @@ This means:
 **Decision:** Multi-stage Docker build with persistent volumes.
 **Why:** Easy deployment, consistent environments.
 
+### 6. Class-Based Theme Switching
+
+**Decision:** Use `dark` and `light` classes with CSS variables.
+**Why:** Works with Tailwind's dark mode, no flash on load.
+
 ---
 
 ## Folder Structure
@@ -100,8 +108,8 @@ src/
 │   └── ui/        # Generic UI (Button, Input, Badge)
 ├── features/      # Feature modules
 │   ├── auth/      # Auth context
-│   ├── catalog/   # Catalog access (legacy)
-│   └── library/   # Library context
+│   ├── library/   # Library context
+│   └── theme/     # Theme context and toggle
 ├── lib/           # Utilities
 │   ├── auth.ts    # Auth utilities
 │   ├── prisma.ts  # Prisma client
@@ -143,6 +151,41 @@ src/
 
 ---
 
+## Theme System
+
+### CSS Variables (globals.css)
+
+```css
+:root, .dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --border: #27272a;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #f4f4f5;
+  --border: #e4e4e7;
+}
+```
+
+### Tailwind Pattern
+
+```tsx
+// Light mode first, dark: prefix for dark mode
+className="bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white"
+```
+
+### Theme Toggle
+
+- Located in Header
+- Three options: Light, Dark, System
+- Persisted in localStorage
+
+---
+
 ## Quick Reference
 
 ### Adding a New Game
@@ -152,6 +195,11 @@ src/
 3. Click "Add Game"
 4. Fill in game details
 5. Save - game appears immediately
+
+### Default Admin Account
+
+- Email: `admin@playforge.local`
+- Password: `admin123`
 
 ### Running Locally
 

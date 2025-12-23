@@ -9,6 +9,7 @@ A centralized launcher and discovery hub for indie games - a lightweight "mini-S
 - **User Accounts**: Register, login, and sync library across devices
 - **Personal Library**: Favorites and play history
 - **Admin Panel**: Manage games and users
+- **Dark/Light Theme**: Toggle between dark and light modes
 - **Docker Support**: Easy deployment with persistent storage
 
 ## Quick Start
@@ -33,6 +34,12 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Default Admin Account
+
+After seeding the database:
+- Email: `admin@playforge.local`
+- Password: `admin123`
 
 ### Docker Deployment
 
@@ -62,17 +69,30 @@ docker-compose up -d
 src/
 ├── app/          # Next.js App Router pages
 ├── components/   # React components
-├── features/     # Feature modules (auth, library)
+├── features/     # Feature modules (auth, library, theme)
 ├── lib/          # Utilities
 └── types/        # TypeScript definitions
 ```
 
+## Theme Support
+
+Playforge supports dark and light themes:
+- **Dark Mode**: Default theme with dark backgrounds
+- **Light Mode**: Bright backgrounds for daytime use
+- **System**: Follows system preference
+
+Toggle using the theme switcher in the header.
+
 ## Admin Access
 
+1. Login with admin credentials at `/login`
+2. Access admin panel at `/admin`
+3. Manage games, users, and view stats
+
+Or create a new admin:
 1. Register a new account at `/register`
 2. Access the database: `npx prisma studio`
 3. Change user role to "ADMIN"
-4. Access admin panel at `/admin`
 
 ## Environment Variables
 
