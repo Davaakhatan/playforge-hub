@@ -8,21 +8,36 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  username       String          @unique
-  email          String          @unique
-  passwordHash   String
-  role           String          @default("USER") // USER or ADMIN
-  avatar         String?
-  bio            String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  favorites      Favorite[]
-  playHistory    PlayHistory[]
-  sessions       Session[]
-  reviews        Review[]
-  collections    Collection[]
-  passwordResets PasswordReset[]
+  id               String           @id @default(cuid())
+  username         String           @unique
+  email            String           @unique
+  passwordHash     String?
+  role             String           @default("USER") // USER or ADMIN
+  avatar           String?
+  bio              String?
+  emailVerified    Boolean          @default(false)
+  twoFactorEnabled Boolean          @default(false)
+  twoFactorSecret  String?
+  totalPlayTime    Int              @default(0) // in seconds
+  xp               Int              @default(0)
+  level            Int              @default(1)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  favorites        Favorite[]
+  playHistory      PlayHistory[]
+  sessions         Session[]
+  reviews          Review[]
+  collections      Collection[]
+  passwordResets   PasswordReset[]
+  oauthAccounts    OAuthAccount[]
+  emailVerifications EmailVerification[]
+  twoFactorBackups TwoFactorBackup[]
+  comments         Comment[]
+  commentLikes     CommentLike[]
+  notifications    Notification[]
+  userAchievements UserAchievement[]
+  sentReports      Report[]         @relation("Reporter")
+  receivedReports  Report[]         @relation("ReportedUser")
 }
 
 model Session {
@@ -63,6 +78,8 @@ model Game {
   playHistory      PlayHistory[]
   reviews          Review[]
   collections      CollectionGame[]
+  comments         Comment[]
+  reports          Report[]
 
   @@index([hidden, featured, createdAt])
   @@index([hidden, createdAt])
@@ -167,4 +184,145 @@ model RateLimit {
 
   @@unique([identifier, endpoint])
   @@index([identifier, endpoint, windowStart])
+}
+
+// OAuth Accounts for social login
+model OAuthAccount {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String   // google, github, discord
+  providerId   String   // ID from the provider
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+// Email verification tokens
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+// Two-factor backup codes
+model TwoFactorBackup {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Comments on games
+model Comment {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId    String
+  game      Game          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]     @relation("CommentReplies")
+  content   String
+  isEdited  Boolean       @default(false)
+  isHidden  Boolean       @default(false)
+  likes     CommentLike[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([gameId, createdAt])
+  @@index([userId])
+  @@index([parentId])
+}
+
+// Comment likes
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+}
+
+// Notifications
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // comment_reply, achievement, system, etc.
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead, createdAt])
+}
+
+// Achievements/Badges
+model Achievement {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  name        String
+  description String
+  icon        String
+  xpReward    Int               @default(0)
+  rarity      String            @default("common") // common, rare, epic, legendary
+  criteria    String            // JSON criteria for unlocking
+  createdAt   DateTime          @default(now())
+  users       UserAchievement[]
+}
+
+// User achievements (junction table)
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId, unlockedAt])
+}
+
+// Reports for moderation
+model Report {
+  id             String   @id @default(cuid())
+  reporterId     String
+  reporter       User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId String?
+  reportedUser   User?    @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+  gameId         String?
+  game           Game?    @relation(fields: [gameId], references: [id], onDelete: SetNull)
+  commentId      String?
+  type           String   // user, game, comment, bug
+  reason         String
+  details        String?
+  status         String   @default("pending") // pending, reviewed, resolved, dismissed
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([reporterId])
 }

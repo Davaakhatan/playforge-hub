@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword, createSession, setSessionCookie } from '@/lib/auth';
+import { generateToken, sendVerificationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,7 +43,23 @@ export async function POST(request: NextRequest) {
         email,
         passwordHash,
         role: 'USER',
+        emailVerified: false,
       },
+    });
+
+    // Create email verification token
+    const verificationToken = generateToken();
+    await prisma.emailVerification.create({
+      data: {
+        userId: user.id,
+        token: verificationToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
+    });
+
+    // Send verification email (don't block on this)
+    sendVerificationEmail(email, verificationToken).catch((err) => {
+      console.error('Failed to send verification email:', err);
     });
 
     // Create session
@@ -55,7 +72,9 @@ export async function POST(request: NextRequest) {
         username: user.username,
         email: user.email,
         role: user.role,
+        emailVerified: false,
       },
+      message: 'Account created. Please check your email to verify your account.',
     });
   } catch (error) {
     console.error('Registration error:', error);

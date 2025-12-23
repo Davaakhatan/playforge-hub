@@ -76,6 +76,149 @@ async function main() {
     }
   }
 
+  // Create default achievements
+  const achievements = [
+    // Games played achievements
+    {
+      slug: 'first-game',
+      name: 'First Steps',
+      description: 'Play your first game',
+      icon: '🎮',
+      xpReward: 10,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'games_played', value: 1 }),
+    },
+    {
+      slug: 'gamer-10',
+      name: 'Getting Started',
+      description: 'Play 10 different games',
+      icon: '🕹️',
+      xpReward: 25,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'games_played', value: 10 }),
+    },
+    {
+      slug: 'gamer-50',
+      name: 'Game Enthusiast',
+      description: 'Play 50 different games',
+      icon: '🎯',
+      xpReward: 100,
+      rarity: 'rare',
+      criteria: JSON.stringify({ type: 'games_played', value: 50 }),
+    },
+    {
+      slug: 'gamer-100',
+      name: 'Game Master',
+      description: 'Play 100 different games',
+      icon: '👑',
+      xpReward: 250,
+      rarity: 'epic',
+      criteria: JSON.stringify({ type: 'games_played', value: 100 }),
+    },
+    // Favorites achievements
+    {
+      slug: 'first-favorite',
+      name: 'First Love',
+      description: 'Add your first game to favorites',
+      icon: '❤️',
+      xpReward: 10,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'games_favorited', value: 1 }),
+    },
+    {
+      slug: 'collector-25',
+      name: 'Collector',
+      description: 'Add 25 games to your favorites',
+      icon: '⭐',
+      xpReward: 50,
+      rarity: 'rare',
+      criteria: JSON.stringify({ type: 'games_favorited', value: 25 }),
+    },
+    {
+      slug: 'collector-100',
+      name: 'Grand Collector',
+      description: 'Add 100 games to your favorites',
+      icon: '🌟',
+      xpReward: 200,
+      rarity: 'epic',
+      criteria: JSON.stringify({ type: 'games_favorited', value: 100 }),
+    },
+    // Comments achievements
+    {
+      slug: 'first-comment',
+      name: 'Voice Heard',
+      description: 'Post your first comment',
+      icon: '💬',
+      xpReward: 10,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'comments_posted', value: 1 }),
+    },
+    {
+      slug: 'commentator-10',
+      name: 'Commentator',
+      description: 'Post 10 comments',
+      icon: '📝',
+      xpReward: 25,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'comments_posted', value: 10 }),
+    },
+    {
+      slug: 'commentator-50',
+      name: 'Community Voice',
+      description: 'Post 50 comments',
+      icon: '📣',
+      xpReward: 100,
+      rarity: 'rare',
+      criteria: JSON.stringify({ type: 'comments_posted', value: 50 }),
+    },
+    // Level achievements
+    {
+      slug: 'level-5',
+      name: 'Rising Star',
+      description: 'Reach level 5',
+      icon: '✨',
+      xpReward: 50,
+      rarity: 'common',
+      criteria: JSON.stringify({ type: 'level', value: 5 }),
+    },
+    {
+      slug: 'level-10',
+      name: 'Veteran',
+      description: 'Reach level 10',
+      icon: '🏆',
+      xpReward: 100,
+      rarity: 'rare',
+      criteria: JSON.stringify({ type: 'level', value: 10 }),
+    },
+    {
+      slug: 'level-25',
+      name: 'Elite Gamer',
+      description: 'Reach level 25',
+      icon: '💎',
+      xpReward: 250,
+      rarity: 'epic',
+      criteria: JSON.stringify({ type: 'level', value: 25 }),
+    },
+    {
+      slug: 'level-50',
+      name: 'Legendary Player',
+      description: 'Reach level 50',
+      icon: '🔥',
+      xpReward: 500,
+      rarity: 'legendary',
+      criteria: JSON.stringify({ type: 'level', value: 50 }),
+    },
+  ];
+
+  for (const achievement of achievements) {
+    await prisma.achievement.upsert({
+      where: { slug: achievement.slug },
+      update: achievement,
+      create: achievement,
+    });
+  }
+  console.log('Created achievements:', achievements.length);
+
   console.log('Seed completed!');
 }
 

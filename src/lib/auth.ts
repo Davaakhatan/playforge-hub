@@ -94,3 +94,20 @@ export async function deleteSession(sessionId: string) {
 export async function deleteUserSessions(userId: string) {
   await prisma.session.deleteMany({ where: { userId } });
 }
+
+// Validate a session token and return the user
+export async function validateSession(sessionToken: string) {
+  const session = await prisma.session.findUnique({
+    where: { id: sessionToken },
+    include: { user: true },
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    if (session) {
+      await prisma.session.delete({ where: { id: sessionToken } }).catch(() => {});
+    }
+    return null;
+  }
+
+  return session.user;
+}

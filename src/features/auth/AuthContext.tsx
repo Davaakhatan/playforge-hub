@@ -14,12 +14,19 @@ interface User {
   username: string;
   email: string;
   role: string;
+  avatar?: string;
+  twoFactorEnabled?: boolean;
+}
+
+interface LoginResult {
+  requires2FA?: boolean;
+  user?: User;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -47,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,7 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.error || 'Login failed');
     }
 
+    // Check if 2FA is required
+    if (data.requires2FA) {
+      return { requires2FA: true };
+    }
+
     setUser(data.user);
+    return { user: data.user };
   }, []);
 
   const register = useCallback(

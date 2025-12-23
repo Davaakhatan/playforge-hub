@@ -12,6 +12,8 @@ async function getStats() {
     webGames,
     downloadGames,
     externalGames,
+    totalComments,
+    pendingReports,
   ] = await Promise.all([
     prisma.game.count({ where: { hidden: false } }),
     prisma.user.count(),
@@ -22,6 +24,8 @@ async function getStats() {
     prisma.game.count({ where: { type: 'web-embed', hidden: false } }),
     prisma.game.count({ where: { type: 'download', hidden: false } }),
     prisma.game.count({ where: { type: 'external', hidden: false } }),
+    prisma.comment.count({ where: { isHidden: false } }),
+    prisma.report.count({ where: { status: 'pending' } }),
   ]);
 
   const recentGames = await prisma.game.findMany({
@@ -67,6 +71,8 @@ async function getStats() {
     webGames,
     downloadGames,
     externalGames,
+    totalComments,
+    pendingReports,
     recentGames,
     recentUsers,
     topRatedGames: gamesWithRatings,
@@ -180,6 +186,17 @@ export default async function AdminDashboard() {
             className="inline-flex items-center gap-2 rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
           >
             Manage Users
+          </Link>
+          <Link
+            href="/admin/moderation"
+            className="relative inline-flex items-center gap-2 rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
+          >
+            Moderation
+            {stats.pendingReports > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                {stats.pendingReports > 9 ? '9+' : stats.pendingReports}
+              </span>
+            )}
           </Link>
         </div>
       </div>

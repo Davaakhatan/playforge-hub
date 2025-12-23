@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/features/auth/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,12 +56,25 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          {/* OAuth Buttons */}
+          <OAuthButtons className="mb-6" />
+
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-700" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-zinc-900 px-2 text-zinc-500">or register with email</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
 
             <Input
               label="Username"
