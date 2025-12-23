@@ -2,6 +2,9 @@ import { Suspense } from 'react';
 import { getAllGames } from '@/features/catalog';
 import { LibraryContent } from './LibraryContent';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'My Library - Playforge',
   description: 'Your favorite and recently played games.',
