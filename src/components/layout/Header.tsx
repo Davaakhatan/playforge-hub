@@ -6,14 +6,14 @@ import { ThemeToggle } from '@/features/theme';
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-opacity-80 dark:border-zinc-800 dark:bg-zinc-950/95">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
           <Image
             src="/images/logo.png"
             alt="Playforge"
-            width={320}
-            height={80}
-            className="h-16 w-auto brightness-0 dark:brightness-100"
+            width={400}
+            height={100}
+            className="h-20 w-auto invert dark:invert-0"
             priority
           />
         </Link>
