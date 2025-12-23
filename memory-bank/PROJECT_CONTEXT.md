@@ -37,6 +37,13 @@ This means:
 - Docker containerization
 - Dark/Light theme toggle
 - Protected library (requires login)
+- Mobile filter drawer (slide-up panel)
+- Screenshot gallery with lightbox
+- Sorting options (featured, newest, oldest, A-Z, Z-A)
+- Pagination (12 games per page)
+- Loading skeletons for smooth UX
+- SEO metadata (Open Graph, Twitter Cards)
+- PWA manifest for app installation
 
 ### Tech Stack
 

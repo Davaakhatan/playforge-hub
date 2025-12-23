@@ -11,6 +11,12 @@ A centralized launcher and discovery hub for indie games - a lightweight "mini-S
 - **Admin Panel**: Manage games and users
 - **Dark/Light Theme**: Toggle between dark and light modes
 - **Docker Support**: Easy deployment with persistent storage
+- **Mobile Filters**: Slide-up drawer for filtering on mobile
+- **Screenshot Gallery**: Full-screen lightbox with keyboard navigation
+- **Sorting Options**: Sort by featured, newest, oldest, or alphabetically
+- **Pagination**: Browse large catalogs with page navigation
+- **SEO Optimized**: Open Graph and Twitter Card metadata
+- **PWA Ready**: Installable as a progressive web app
 
 ## Quick Start
 

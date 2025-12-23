@@ -383,6 +383,78 @@ Class-based theme switching with CSS variables and Tailwind's `dark:` prefix.
 
 ---
 
+## ADR-013: UI/UX Enhancements
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need to improve user experience with mobile-friendly filters, better image viewing, game sorting, and pagination.
+
+### Options Considered
+
+1. **Third-party libraries:** Use existing component libraries
+2. **Custom components:** Build tailored components
+
+### Decision
+
+Custom components with Tailwind CSS animations.
+
+### Rationale
+
+- Full control over design and behavior
+- No additional dependencies
+- Consistent with existing codebase
+- Lightweight and fast
+- Components include:
+  - Drawer (mobile slide-up panel)
+  - Lightbox (full-screen image viewer)
+  - Pagination (URL-based navigation)
+  - Skeleton (loading states)
+  - Select (styled dropdown)
+
+### Consequences
+
+- More code to maintain
+- Tested across modern browsers
+- Keyboard navigation included
+
+---
+
+## ADR-014: SEO and PWA Support
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need to improve discoverability and allow installation as app.
+
+### Options Considered
+
+1. **Basic meta tags:** Minimal SEO
+2. **Full metadata + PWA:** Comprehensive approach
+
+### Decision
+
+Full metadata with Open Graph, Twitter Cards, and PWA manifest.
+
+### Rationale
+
+- Better social sharing previews
+- Search engine optimization
+- Users can install as home screen app
+- Professional appearance
+
+### Consequences
+
+- Need to create OG images
+- metadataBase required for absolute URLs
+- manifest.json icons needed
+
+---
+
 ## Template for Future Decisions
 
 ```markdown
