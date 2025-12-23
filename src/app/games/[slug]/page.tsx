@@ -4,12 +4,25 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/Button';
 import { SizeBadge, TypeBadge, StatusBadge, TagBadge } from '@/components/ui/Badge';
-import { FavoriteButton, ScreenshotGallery } from '@/components/game';
+import { FavoriteButton, ScreenshotGallery, ViewTracker } from '@/components/game';
 import { ReviewSection } from '@/components/review';
+import { ShareButtons } from '@/components/social/ShareButtons';
 import type { GameEntry } from '@/types';
+
+// ISR: Revalidate every 60 seconds
+export const revalidate = 60;
 
 interface GamePageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Pre-generate pages for all visible games
+export async function generateStaticParams() {
+  const games = await prisma.game.findMany({
+    where: { hidden: false },
+    select: { slug: true },
+  });
+  return games.map((game) => ({ slug: game.slug }));
 }
 
 function transformGame(game: {
@@ -151,6 +164,9 @@ export default async function GamePage({ params }: GamePageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Track page view */}
+      <ViewTracker gameId={game.id} />
+
       {/* Back Button */}
       <Link
         href="/"
@@ -263,6 +279,13 @@ export default async function GamePage({ params }: GamePageProps) {
                 </div>
               )}
             </div>
+
+            {/* Social Sharing */}
+            <ShareButtons
+              title={game.title}
+              description={game.shortDescription}
+              className="border-t border-zinc-200 pt-4 dark:border-zinc-800"
+            />
           </div>
         </div>
       </div>

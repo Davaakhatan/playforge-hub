@@ -4,3 +4,4 @@ export { InfiniteGameGrid } from './InfiniteGameGrid';
 export { FavoriteButton } from './FavoriteButton';
 export { ScreenshotGallery } from './ScreenshotGallery';
 export { PaginatedGameGrid } from './PaginatedGameGrid';
+export { ViewTracker } from './ViewTracker';

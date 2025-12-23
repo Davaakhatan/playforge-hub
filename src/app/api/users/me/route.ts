@@ -1,23 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
-// PUT /api/users/me - Update current user's profile
-export async function PUT(request: NextRequest) {
+export async function GET() {
   try {
     const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    return NextResponse.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      bio: user.bio,
+      role: user.role,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    const { avatar, bio } = body;
+    const { bio, avatar } = body;
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        avatar: avatar !== undefined ? avatar : undefined,
-        bio: bio !== undefined ? bio : undefined,
+        ...(bio !== undefined && { bio: bio.slice(0, 200) }),
+        ...(avatar !== undefined && { avatar }),
       },
       select: {
         id: true,
@@ -32,10 +55,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error('Failed to update profile:', error);
-    return NextResponse.json(
-      { error: 'Failed to update profile' },
-      { status: 500 }
-    );
+    console.error('Update user error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -19,6 +19,12 @@ export function GamePlayer({ game }: GamePlayerProps) {
   // Record play when component mounts
   useEffect(() => {
     recordPlay(game.id);
+    // Track play count in database
+    fetch(`/api/games/${game.id}/analytics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'play' }),
+    }).catch(console.error);
   }, [game.id, recordPlay]);
 
   const toggleFullscreen = () => {
