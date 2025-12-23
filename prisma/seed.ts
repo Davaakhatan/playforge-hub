@@ -4,6 +4,27 @@ import catalogData from '../catalog/games.json';
 
 const prisma = new PrismaClient();
 
+interface GameData {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  longDescription: string;
+  thumbnail: string;
+  screenshots?: string[];
+  tags?: string[];
+  size: string;
+  type: string;
+  releaseStatus: string;
+  url: string;
+  platforms?: string[];
+  developer?: string;
+  releaseDate?: string;
+  version?: string;
+  featured?: boolean;
+  hidden?: boolean;
+}
+
 async function main() {
   console.log('Starting seed...');
 
@@ -22,7 +43,7 @@ async function main() {
   console.log('Created admin user:', admin.username);
 
   // Migrate games from JSON catalog
-  for (const game of catalogData) {
+  for (const game of catalogData as GameData[]) {
     const existingGame = await prisma.game.findUnique({
       where: { slug: game.slug },
     });

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/Button';
 import { SizeBadge, TypeBadge, StatusBadge, TagBadge } from '@/components/ui/Badge';
 import { FavoriteButton } from '@/components/game/FavoriteButton';
+import { ReviewSection } from '@/components/review';
 import type { GameEntry } from '@/types';
 
 interface GamePageProps {
@@ -210,6 +211,11 @@ export default async function GamePage({ params }: GamePageProps) {
           <div>
             <h3 className="mb-3 text-lg font-semibold text-white">About This Game</h3>
             <p className="whitespace-pre-wrap text-zinc-400">{game.longDescription}</p>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-8 border-t border-zinc-800 pt-8">
+            <ReviewSection gameId={game.id} />
           </div>
         </div>
 

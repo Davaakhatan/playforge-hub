@@ -13,11 +13,15 @@ model User {
   email        String        @unique
   passwordHash String
   role         String        @default("USER") // USER or ADMIN
+  avatar       String?
+  bio          String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   favorites    Favorite[]
   playHistory  PlayHistory[]
   sessions     Session[]
+  reviews      Review[]
+  collections  Collection[]
 }
 
 model Session {
@@ -29,28 +33,30 @@ model Session {
 }
 
 model Game {
-  id               String        @id @default(cuid())
-  slug             String        @unique
+  id               String           @id @default(cuid())
+  slug             String           @unique
   title            String
   shortDescription String
   longDescription  String
   thumbnail        String
-  screenshots      String        @default("[]")
-  tags             String        @default("[]")
-  size             String        @default("mini")
-  type             String        @default("web-embed")
-  releaseStatus    String        @default("released")
+  screenshots      String           @default("[]")
+  tags             String           @default("[]")
+  size             String           @default("mini")
+  type             String           @default("web-embed")
+  releaseStatus    String           @default("released")
   url              String
-  platforms        String        @default("[]")
+  platforms        String           @default("[]")
   developer        String?
   releaseDate      DateTime?
   version          String?
-  featured         Boolean       @default(false)
-  hidden           Boolean       @default(false)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  featured         Boolean          @default(false)
+  hidden           Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
   favorites        Favorite[]
   playHistory      PlayHistory[]
+  reviews          Review[]
+  collections      CollectionGame[]
 }
 
 model Favorite {
@@ -73,4 +79,42 @@ model PlayHistory {
   lastPlayed DateTime @default(now())
 
   @@unique([userId, gameId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5 stars
+  title     String?
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, gameId])
+}
+
+model Collection {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isPublic    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  games       CollectionGame[]
+}
+
+model CollectionGame {
+  id           String     @id @default(cuid())
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  gameId       String
+  game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  addedAt      DateTime   @default(now())
+
+  @@unique([collectionId, gameId])
 }
