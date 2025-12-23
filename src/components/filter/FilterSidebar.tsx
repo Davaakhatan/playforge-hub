@@ -64,7 +64,7 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
       {hasFilters && (
         <button
           onClick={clearFilters}
-          className="text-sm text-blue-400 hover:text-blue-300"
+          className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
         >
           Clear all filters
         </button>
@@ -72,17 +72,17 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
 
       {/* Size Filter */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-white">Size</h3>
+        <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Size</h3>
         <div className="space-y-2">
           {sizeOptions.map((option) => (
-            <label key={option.value} className="flex items-center gap-2">
+            <label key={option.value} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedSizes.includes(option.value)}
                 onChange={() => toggleFilter('size', option.value)}
-                className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-zinc-300 bg-white text-blue-500 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
               />
-              <span className="text-sm text-zinc-300">{option.label}</span>
+              <span className="text-sm text-zinc-700 dark:text-zinc-300">{option.label}</span>
             </label>
           ))}
         </div>
@@ -90,17 +90,17 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
 
       {/* Type Filter */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-white">Type</h3>
+        <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Type</h3>
         <div className="space-y-2">
           {typeOptions.map((option) => (
-            <label key={option.value} className="flex items-center gap-2">
+            <label key={option.value} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedTypes.includes(option.value)}
                 onChange={() => toggleFilter('type', option.value)}
-                className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-zinc-300 bg-white text-blue-500 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
               />
-              <span className="text-sm text-zinc-300">{option.label}</span>
+              <span className="text-sm text-zinc-700 dark:text-zinc-300">{option.label}</span>
             </label>
           ))}
         </div>
@@ -108,17 +108,17 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
 
       {/* Status Filter */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-white">Status</h3>
+        <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Status</h3>
         <div className="space-y-2">
           {statusOptions.map((option) => (
-            <label key={option.value} className="flex items-center gap-2">
+            <label key={option.value} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedStatuses.includes(option.value)}
                 onChange={() => toggleFilter('status', option.value)}
-                className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-zinc-300 bg-white text-blue-500 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
               />
-              <span className="text-sm text-zinc-300">{option.label}</span>
+              <span className="text-sm text-zinc-700 dark:text-zinc-300">{option.label}</span>
             </label>
           ))}
         </div>
@@ -127,7 +127,7 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
       {/* Tags Filter */}
       {tags.length > 0 && (
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-white">Tags</h3>
+          <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Tags</h3>
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 15).map((tag) => (
               <button
@@ -137,7 +137,7 @@ export function FilterSidebar({ tags, className }: FilterSidebarProps) {
                   'rounded-full px-3 py-1 text-xs transition-colors',
                   selectedTags.includes(tag)
                     ? 'bg-blue-500 text-white'
-                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
                 )}
               >
                 {tag}

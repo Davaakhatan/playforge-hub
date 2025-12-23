@@ -154,17 +154,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <section className="mb-8 text-center">
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-white md:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold tracking-tight text-zinc-900 md:text-5xl dark:text-white">
           Discover Amazing{' '}
           <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
             Indie Games
           </span>
         </h1>
-        <p className="mx-auto mb-6 max-w-2xl text-lg text-zinc-400">
+        <p className="mx-auto mb-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
           Your gateway to the best indie games. Play instantly in your browser,
           download, or launch from external platforms.
         </p>
-        <Suspense fallback={<div className="h-12 w-full max-w-xl mx-auto rounded-xl bg-zinc-800 animate-pulse" />}>
+        <Suspense fallback={<div className="h-12 w-full max-w-xl mx-auto rounded-xl bg-zinc-200 animate-pulse dark:bg-zinc-800" />}>
           <SearchBar className="mx-auto max-w-xl" />
         </Suspense>
       </section>
@@ -180,7 +180,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           {/* Featured Games */}
           {!hasFilters && featuredGames.length > 0 && (
             <section className="mb-10">
-              <h2 className="mb-6 text-2xl font-bold text-white">Featured Games</h2>
+              <h2 className="mb-6 text-2xl font-bold text-zinc-900 dark:text-white">Featured Games</h2>
               <GameGrid games={featuredGames} />
             </section>
           )}
@@ -188,7 +188,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           {/* All Games */}
           <section>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
                 {hasFilters ? 'Search Results' : 'All Games'}
               </h2>
               <span className="text-sm text-zinc-500">{games.length} games</span>
