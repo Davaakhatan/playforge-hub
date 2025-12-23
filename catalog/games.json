@@ -5,10 +5,10 @@
     "title": "Pixel Runner",
     "shortDescription": "An endless runner with retro pixel art aesthetics.",
     "longDescription": "Pixel Runner is a fast-paced endless runner game featuring beautiful retro pixel art graphics. Dodge obstacles, collect coins, and see how far you can run! Features multiple characters, power-ups, and leaderboards.",
-    "thumbnail": "/images/games/pixel-runner.jpg",
+    "thumbnail": "https://picsum.photos/seed/pixelrunner/640/360",
     "screenshots": [
-      "/images/games/pixel-runner-1.jpg",
-      "/images/games/pixel-runner-2.jpg"
+      "https://picsum.photos/seed/pixelrunner1/1280/720",
+      "https://picsum.photos/seed/pixelrunner2/1280/720"
     ],
     "tags": ["arcade", "endless-runner", "pixel-art", "casual"],
     "size": "mini",
@@ -27,10 +27,10 @@
     "title": "Space Defender",
     "shortDescription": "Defend Earth from alien invasion in this classic shooter.",
     "longDescription": "Space Defender is a classic top-down space shooter. Control your ship, destroy waves of alien invaders, and protect humanity! Features 50 levels, boss battles, and weapon upgrades.",
-    "thumbnail": "/images/games/space-defender.jpg",
+    "thumbnail": "https://picsum.photos/seed/spacedefender/640/360",
     "screenshots": [
-      "/images/games/space-defender-1.jpg",
-      "/images/games/space-defender-2.jpg"
+      "https://picsum.photos/seed/spacedefender1/1280/720",
+      "https://picsum.photos/seed/spacedefender2/1280/720"
     ],
     "tags": ["shooter", "arcade", "space", "action"],
     "size": "mini",
@@ -49,9 +49,9 @@
     "title": "Puzzle Quest",
     "shortDescription": "A relaxing match-3 puzzle game with RPG elements.",
     "longDescription": "Puzzle Quest combines classic match-3 gameplay with RPG progression. Level up your character, unlock new abilities, and complete quests through hundreds of puzzles. Perfect for casual gaming sessions.",
-    "thumbnail": "/images/games/puzzle-quest.jpg",
+    "thumbnail": "https://picsum.photos/seed/puzzlequest/640/360",
     "screenshots": [
-      "/images/games/puzzle-quest-1.jpg"
+      "https://picsum.photos/seed/puzzlequest1/1280/720"
     ],
     "tags": ["puzzle", "match-3", "rpg", "casual", "relaxing"],
     "size": "medium",
@@ -70,11 +70,11 @@
     "title": "Dungeon Crawler X",
     "shortDescription": "Explore procedurally generated dungeons in this roguelike.",
     "longDescription": "Dungeon Crawler X is a challenging roguelike with procedurally generated dungeons. Each run is unique! Find loot, fight monsters, and try to reach the final boss. Permadeath makes every decision matter.",
-    "thumbnail": "/images/games/dungeon-crawler.jpg",
+    "thumbnail": "https://picsum.photos/seed/dungeoncrawler/640/360",
     "screenshots": [
-      "/images/games/dungeon-crawler-1.jpg",
-      "/images/games/dungeon-crawler-2.jpg",
-      "/images/games/dungeon-crawler-3.jpg"
+      "https://picsum.photos/seed/dungeoncrawler1/1280/720",
+      "https://picsum.photos/seed/dungeoncrawler2/1280/720",
+      "https://picsum.photos/seed/dungeoncrawler3/1280/720"
     ],
     "tags": ["roguelike", "dungeon-crawler", "rpg", "action", "indie"],
     "size": "big",
@@ -93,10 +93,10 @@
     "title": "Farm Life Simulator",
     "shortDescription": "Build your dream farm in this cozy simulation game.",
     "longDescription": "Farm Life Simulator lets you build and manage your own farm. Plant crops, raise animals, build relationships with townspeople, and expand your farming empire. A relaxing experience for all ages.",
-    "thumbnail": "/images/games/farm-life.jpg",
+    "thumbnail": "https://picsum.photos/seed/farmlife/640/360",
     "screenshots": [
-      "/images/games/farm-life-1.jpg",
-      "/images/games/farm-life-2.jpg"
+      "https://picsum.photos/seed/farmlife1/1280/720",
+      "https://picsum.photos/seed/farmlife2/1280/720"
     ],
     "tags": ["simulation", "farming", "cozy", "relaxing", "management"],
     "size": "big",

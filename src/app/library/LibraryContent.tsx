@@ -1,6 +1,7 @@
 'use client';
 
 import { useLibrary } from '@/features/library/LibraryContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { GameGrid } from '@/components/game';
 import type { GameEntry } from '@/types';
 import Link from 'next/link';
@@ -11,6 +12,52 @@ interface LibraryContentProps {
 
 export function LibraryContent({ allGames }: LibraryContentProps) {
   const { favorites, recentlyPlayed } = useLibrary();
+  const { user, isLoading } = useAuth();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Require login to view library
+  if (!user) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 text-center">
+        <div className="mb-4 rounded-full bg-zinc-800 p-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="h-8 w-8 text-zinc-500"
+          >
+            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <h2 className="mb-2 text-lg font-semibold text-white">Sign in to view your Library</h2>
+        <p className="mb-4 max-w-md text-sm text-zinc-400">
+          Your favorites and recently played games are synced to your account. Sign in to access your personal library.
+        </p>
+        <div className="flex gap-3">
+          <Link
+            href="/login"
+            className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2 text-sm font-medium text-white transition-all hover:from-blue-600 hover:to-cyan-600"
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/register"
+            className="inline-flex items-center rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+          >
+            Create Account
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Get favorite games
   const favoriteGames = allGames.filter((game) =>
