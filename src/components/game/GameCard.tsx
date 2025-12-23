@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { GameEntry } from '@/types';
-import { SizeBadge, TypeBadge } from '@/components/ui/Badge';
+import { SizeBadge, TypeBadge, StatusBadge } from '@/components/ui/Badge';
 import { Rating } from '@/components/ui/Rating';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ export function GameCard({ game, className }: GameCardProps) {
     <Link
       href={`/games/${game.slug}`}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-blue-500/50 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none',
+        'group relative flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:ring-2 hover:ring-blue-500/50 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none dark:hover:shadow-blue-500/5',
         className
       )}
     >
@@ -47,7 +47,7 @@ export function GameCard({ game, className }: GameCardProps) {
             alt={game.title}
             fill
             className={cn(
-              'object-cover transition-all duration-300 group-hover:scale-105',
+              'object-cover transition-all duration-500 group-hover:scale-110',
               imgLoaded ? 'opacity-100' : 'opacity-0'
             )}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -57,18 +57,56 @@ export function GameCard({ game, className }: GameCardProps) {
             onError={() => setImgError(true)}
           />
         )}
-        {game.featured && (
-          <div className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-2 py-0.5 text-xs font-medium text-white">
-            Featured
+
+        {/* Play button overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/40">
+          <div className="flex h-14 w-14 scale-0 items-center justify-center rounded-full bg-white/90 shadow-lg transition-all duration-300 group-hover:scale-100 dark:bg-zinc-900/90">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="ml-1 h-6 w-6 text-blue-600 dark:text-blue-400"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
+                clipRule="evenodd"
+              />
+            </svg>
           </div>
-        )}
+        </div>
+
+        {/* Badges overlay */}
+        <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
+          {game.featured && (
+            <div className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-md">
+              Featured
+            </div>
+          )}
+          {game.releaseStatus !== 'released' && (
+            <StatusBadge status={game.releaseStatus} />
+          )}
+        </div>
+
+        {/* Game type indicator */}
+        <div className="absolute bottom-2 right-2">
+          <TypeBadge type={game.type} />
+        </div>
       </div>
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-zinc-900 line-clamp-1 dark:text-white">{game.title}</h3>
+          <h3 className="font-semibold text-zinc-900 transition-colors group-hover:text-blue-600 line-clamp-1 dark:text-white dark:group-hover:text-blue-400">
+            {game.title}
+          </h3>
         </div>
+
+        {game.developer && (
+          <p className="mb-1.5 text-xs text-zinc-500 dark:text-zinc-500">
+            by {game.developer}
+          </p>
+        )}
 
         {game.averageRating !== undefined && game.reviewCount !== undefined && game.reviewCount > 0 && (
           <Rating
@@ -79,13 +117,15 @@ export function GameCard({ game, className }: GameCardProps) {
           />
         )}
 
-        <p className="mb-3 text-sm text-zinc-600 line-clamp-2 dark:text-zinc-400">
+        <p className="mb-3 flex-1 text-sm text-zinc-600 line-clamp-2 dark:text-zinc-400">
           {game.shortDescription}
         </p>
 
-        <div className="mt-auto flex flex-wrap gap-2">
+        <div className="mt-auto flex items-center justify-between">
           <SizeBadge size={game.size} />
-          <TypeBadge type={game.type} />
+          <span className="text-xs font-medium text-blue-600 opacity-0 transition-opacity group-hover:opacity-100 dark:text-blue-400">
+            View Details
+          </span>
         </div>
       </div>
     </Link>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/Button';
 import { SizeBadge, TypeBadge, StatusBadge, TagBadge } from '@/components/ui/Badge';
-import { FavoriteButton, ScreenshotGallery, ViewTracker } from '@/components/game';
+import { FavoriteButton, ScreenshotGallery, ViewTracker, GameLeaderboard } from '@/components/game';
 import { ReviewSection } from '@/components/review';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import type { GameEntry } from '@/types';
@@ -297,6 +297,9 @@ export default async function GamePage({ params }: GamePageProps) {
               description={game.shortDescription}
               className="border-t border-zinc-200 pt-4 dark:border-zinc-800"
             />
+
+            {/* Leaderboard */}
+            <GameLeaderboard gameId={game.id} />
           </div>
         </div>
       </div>

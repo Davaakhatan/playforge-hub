@@ -5,3 +5,4 @@ export { FavoriteButton } from './FavoriteButton';
 export { ScreenshotGallery } from './ScreenshotGallery';
 export { PaginatedGameGrid } from './PaginatedGameGrid';
 export { ViewTracker } from './ViewTracker';
+export { GameLeaderboard } from './GameLeaderboard';
