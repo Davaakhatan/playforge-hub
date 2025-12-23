@@ -27,12 +27,15 @@ export function GamePlayer({ game }: GamePlayerProps) {
     }).catch(console.error);
   }, [game.id, recordPlay]);
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
+    const gameContainer = document.getElementById('game-container');
+    if (!gameContainer) return;
+
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
+      await gameContainer.requestFullscreen();
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen();
+      await document.exitFullscreen();
       setIsFullscreen(false);
     }
   };
@@ -117,10 +120,11 @@ export function GamePlayer({ game }: GamePlayerProps) {
         </div>
       </div>
 
-      {/* Game Container - Full viewport minus header */}
+      {/* Game Container - Full viewport minus header (or full screen in fullscreen mode) */}
       <div
+        id="game-container"
         className="relative flex items-center justify-center bg-black"
-        style={{ height: 'calc(100vh - 49px)' }}
+        style={{ height: isFullscreen ? '100vh' : 'calc(100vh - 49px)' }}
       >
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
@@ -178,7 +182,7 @@ export function GamePlayer({ game }: GamePlayerProps) {
             style={{
               width: '100%',
               height: '100%',
-              maxWidth: 'calc((100vh - 49px) * 16 / 9)',
+              maxWidth: isFullscreen ? 'calc(100vh * 16 / 9)' : 'calc((100vh - 49px) * 16 / 9)',
               maxHeight: 'calc(100vw * 9 / 16)',
             }}
             sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
