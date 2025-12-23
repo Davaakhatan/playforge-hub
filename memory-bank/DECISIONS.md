@@ -51,7 +51,7 @@ Need to choose a React framework for the launcher.
 5. **Astro:** Great for static but less React-native
 
 ### Decision
-Next.js 15 with App Router.
+Next.js 16 with App Router.
 
 ### Rationale
 - Industry standard
@@ -220,44 +220,46 @@ Sandboxed iframes with minimal permissions.
 
 ---
 
-## ADR-008: SQLite with Prisma ORM
+## ADR-008: PostgreSQL with Neon
 
-**Date:** 2025-12-22
-**Status:** Accepted
+**Date:** 2025-12-23
+**Status:** Accepted (supersedes SQLite decision)
 
 ### Context
 
-Need a database solution for storing games, users, and library data.
+Need a production-ready database for Vercel deployment.
 
 ### Options Considered
 
-1. **PostgreSQL:** Full-featured, requires external service
-2. **MongoDB:** NoSQL, requires external service
-3. **SQLite:** File-based, portable, zero config
+1. **SQLite:** File-based, requires persistent volume
+2. **PostgreSQL (Neon):** Cloud-hosted, serverless
+3. **PlanetScale:** MySQL-compatible, serverless
+4. **MongoDB Atlas:** NoSQL, cloud-hosted
 
 ### Decision
 
-SQLite with Prisma ORM.
+PostgreSQL with Neon cloud hosting.
 
 ### Rationale
 
-- Zero external dependencies
-- File-based = easy backup and migration
-- Prisma provides excellent DX and type safety
-- Sufficient for expected scale
-- Docker volume makes it persistent
+- Works seamlessly with Vercel (serverless)
+- Free tier available
+- Full PostgreSQL compatibility
+- Connection pooling built-in
+- Easy migration from SQLite (via Prisma)
 
 ### Consequences
 
-- Limited concurrent write performance (acceptable)
-- Easy to migrate to PostgreSQL later if needed
+- External dependency (Neon)
+- Need to manage connection string securely
+- Slightly more latency than local SQLite
 
 ---
 
 ## ADR-009: Session-Based Authentication
 
 **Date:** 2025-12-22
-**Status:** Accepted
+**Status:** Extended (now includes OAuth and 2FA)
 
 ### Context
 
@@ -271,7 +273,7 @@ Need authentication for user accounts and admin panel.
 
 ### Decision
 
-Session-based authentication with HTTP-only cookies.
+Session-based authentication with HTTP-only cookies, plus OAuth and 2FA support.
 
 ### Rationale
 
@@ -279,11 +281,14 @@ Session-based authentication with HTTP-only cookies.
 - Easy to invalidate sessions
 - Works well with Next.js middleware
 - bcrypt for password hashing
+- OAuth for social login convenience
+- 2FA for enhanced security
 
 ### Consequences
 
 - Requires session storage (database)
 - Need to handle session cleanup
+- OAuth requires provider setup
 
 ---
 
@@ -321,7 +326,7 @@ Integrated admin routes under `/admin/*` path.
 ## ADR-011: Docker Containerization
 
 **Date:** 2025-12-22
-**Status:** Accepted
+**Status:** Accepted (alternative to Vercel)
 
 ### Context
 
@@ -329,22 +334,23 @@ Need consistent deployment across environments.
 
 ### Options Considered
 
-1. **Vercel:** Easy but vendor lock-in
+1. **Vercel:** Easy but requires cloud database
 2. **Docker:** Portable, self-hosted option
 
 ### Decision
 
-Docker with multi-stage build and docker-compose.
+Support both Vercel (primary) and Docker (self-hosted).
 
 ### Rationale
 
-- Consistent environments
-- Easy to deploy anywhere
-- Persistent volume for SQLite
+- Vercel for production (seamless Next.js hosting)
+- Docker for self-hosted scenarios
+- Flexible deployment options
 
 ### Consequences
 
-- Need Docker knowledge for deployment
+- Need to maintain both deployment methods
+- Docker requires external PostgreSQL for production
 
 ---
 
@@ -392,27 +398,16 @@ Class-based theme switching with CSS variables and Tailwind's `dark:` prefix.
 
 Need to improve user experience with mobile-friendly filters, better image viewing, game sorting, and pagination.
 
-### Options Considered
-
-1. **Third-party libraries:** Use existing component libraries
-2. **Custom components:** Build tailored components
-
 ### Decision
 
 Custom components with Tailwind CSS animations.
 
-### Rationale
-
-- Full control over design and behavior
-- No additional dependencies
-- Consistent with existing codebase
-- Lightweight and fast
-- Components include:
-  - Drawer (mobile slide-up panel)
-  - Lightbox (full-screen image viewer)
-  - Pagination (URL-based navigation)
-  - Skeleton (loading states)
-  - Select (styled dropdown)
+### Components Built
+- Drawer (mobile slide-up panel)
+- Lightbox (full-screen image viewer)
+- Pagination (URL-based navigation)
+- Skeleton (loading states)
+- Select (styled dropdown)
 
 ### Consequences
 
@@ -431,11 +426,6 @@ Custom components with Tailwind CSS animations.
 
 Need to improve discoverability and allow installation as app.
 
-### Options Considered
-
-1. **Basic meta tags:** Minimal SEO
-2. **Full metadata + PWA:** Comprehensive approach
-
 ### Decision
 
 Full metadata with Open Graph, Twitter Cards, and PWA manifest.
@@ -452,6 +442,145 @@ Full metadata with Open Graph, Twitter Cards, and PWA manifest.
 - Need to create OG images
 - metadataBase required for absolute URLs
 - manifest.json icons needed
+
+---
+
+## ADR-015: OAuth Authentication
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Users want convenient social login options.
+
+### Options Considered
+
+1. **Auth0/Clerk:** Managed auth service
+2. **NextAuth.js:** Popular auth library
+3. **Custom OAuth:** Built from scratch
+
+### Decision
+
+Custom OAuth implementation for Google, GitHub, and Discord.
+
+### Rationale
+
+- Full control over user flow
+- No additional dependencies
+- Direct integration with existing session system
+- Learn OAuth internals
+
+### Consequences
+
+- More code to maintain
+- Need to handle OAuth edge cases
+- Provider setup required for each service
+
+---
+
+## ADR-016: Two-Factor Authentication
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need enhanced security for user accounts.
+
+### Options Considered
+
+1. **SMS-based:** Phone number required
+2. **Email-based:** Easy but less secure
+3. **TOTP-based:** Authenticator app
+
+### Decision
+
+TOTP-based 2FA with backup codes.
+
+### Rationale
+
+- Industry standard (Google Authenticator, Authy, etc.)
+- No SMS costs
+- Backup codes for recovery
+- Works offline
+
+### Consequences
+
+- Users need authenticator app
+- Need to securely store 2FA secrets
+- Backup codes must be shown only once
+
+---
+
+## ADR-017: Social Features (Comments, Reviews, Achievements)
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need community engagement and gamification features.
+
+### Decision
+
+Implement threaded comments, reviews with ratings, achievements, and leaderboards.
+
+### Features
+- **Comments:** Threaded with likes and replies
+- **Reviews:** 1-5 star ratings with text
+- **Achievements:** 14 predefined badges with XP rewards
+- **Leaderboards:** XP, level, games played, achievements
+- **Notifications:** Real-time notification system
+
+### Rationale
+
+- Increases user engagement
+- Gamification encourages return visits
+- Community features add value
+- Leaderboards create competition
+
+### Consequences
+
+- More database tables and queries
+- Need content moderation
+- Potential for spam/abuse (mitigated with reports)
+
+---
+
+## ADR-018: Neon PostgreSQL for Production
+
+**Date:** 2025-12-23
+**Status:** Accepted
+
+### Context
+
+Need a production database that works with Vercel's serverless environment.
+
+### Options Considered
+
+1. **Supabase:** PostgreSQL with extra features
+2. **PlanetScale:** MySQL-compatible
+3. **Neon:** Serverless PostgreSQL
+4. **Railway:** PostgreSQL hosting
+
+### Decision
+
+Neon PostgreSQL.
+
+### Rationale
+
+- Native PostgreSQL (same as development)
+- Serverless scaling
+- Free tier generous
+- Vercel integration available
+- Connection pooling handles serverless cold starts
+
+### Consequences
+
+- External service dependency
+- Need to manage connection string
+- Free tier has limits (storage, compute)
 
 ---
 

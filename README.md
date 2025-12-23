@@ -2,21 +2,52 @@
 
 A centralized launcher and discovery hub for indie games - a lightweight "mini-Steam" for web and indie builds.
 
+**Live Demo:** [playforge-hub-jcot.vercel.app](https://playforge-hub-jcot.vercel.app)
+
 ## Features
 
-- **Game Catalog**: Browse and search indie games with filtering
+### Core
+- **Game Catalog**: Browse and search indie games with advanced filtering
 - **Multiple Game Types**: Web-embed, external links, and downloads
-- **User Accounts**: Register, login, and sync library across devices
-- **Personal Library**: Favorites and play history
-- **Admin Panel**: Manage games and users
-- **Dark/Light Theme**: Toggle between dark and light modes
-- **Docker Support**: Easy deployment with persistent storage
-- **Mobile Filters**: Slide-up drawer for filtering on mobile
-- **Screenshot Gallery**: Full-screen lightbox with keyboard navigation
-- **Sorting Options**: Sort by featured, newest, oldest, or alphabetically
-- **Pagination**: Browse large catalogs with page navigation
-- **SEO Optimized**: Open Graph and Twitter Card metadata
-- **PWA Ready**: Installable as a progressive web app
+- **User Accounts**: Register, login, OAuth (Google, GitHub, Discord)
+- **Personal Library**: Favorites and play history synced across devices
+
+### Social
+- **Comments**: Threaded comments with likes and replies
+- **Reviews**: Rate and review games
+- **Leaderboards**: XP, level, games played, achievements rankings
+- **Achievements**: Unlock badges and earn XP
+- **Notifications**: Real-time notification system
+
+### Admin
+- **Dashboard**: Analytics with charts and stats
+- **Game Management**: CRUD operations for games
+- **User Management**: Manage users and roles
+- **Moderation**: Handle reports and moderate content
+
+### Security
+- **Two-Factor Auth**: TOTP-based 2FA with backup codes
+- **OAuth Login**: Google, GitHub, Discord integration
+- **Email Verification**: Verify user emails
+- **Session-based Auth**: Secure HTTP-only cookies
+
+### UX
+- **Dark/Light Theme**: Toggle between themes
+- **Mobile Responsive**: Full mobile support with drawer filters
+- **Screenshot Gallery**: Lightbox with keyboard navigation
+- **PWA Ready**: Installable as progressive web app
+
+## Tech Stack
+
+| Technology   | Purpose                |
+| ------------ | ---------------------- |
+| Next.js 16   | React framework        |
+| TypeScript   | Type safety            |
+| Tailwind CSS | Styling                |
+| Prisma       | Database ORM           |
+| PostgreSQL   | Neon cloud database    |
+| bcryptjs     | Password hashing       |
+| Vercel       | Deployment             |
 
 ## Quick Start
 
@@ -24,6 +55,7 @@ A centralized launcher and discovery hub for indie games - a lightweight "mini-S
 
 - Node.js 18+
 - npm
+- Neon account (for PostgreSQL)
 
 ### Development
 
@@ -31,8 +63,12 @@ A centralized launcher and discovery hub for indie games - a lightweight "mini-S
 # Install dependencies
 npm install
 
+# Setup environment
+cp .env.example .env
+# Add your DATABASE_URL from Neon
+
 # Setup database
-npx prisma migrate dev
+npx prisma db push
 npx prisma db seed
 
 # Start development server
@@ -43,77 +79,108 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Default Admin Account
 
-After seeding the database:
 - Email: `admin@playforge.local`
 - Password: `admin123`
 
-### Docker Deployment
+## Environment Variables
 
-```bash
-# Build and run
-docker-compose up --build
+```env
+# Database (Neon PostgreSQL)
+DATABASE_URL="postgresql://user:pass@host/db?sslmode=require"
 
-# Run in background
-docker-compose up -d
+# Session
+SESSION_SECRET="your-secret-key"
+
+# App URL (for OAuth callbacks)
+NEXT_PUBLIC_APP_URL="https://your-domain.com"
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+DISCORD_CLIENT_ID=""
+DISCORD_CLIENT_SECRET=""
 ```
-
-## Tech Stack
-
-| Technology   | Purpose                |
-| ------------ | ---------------------- |
-| Next.js 15   | React framework        |
-| TypeScript   | Type safety            |
-| Tailwind CSS | Styling                |
-| Prisma       | Database ORM           |
-| SQLite       | Data persistence       |
-| bcryptjs     | Password hashing       |
-| Docker       | Containerization       |
 
 ## Project Structure
 
 ```text
 src/
-├── app/          # Next.js App Router pages
-├── components/   # React components
-├── features/     # Feature modules (auth, library, theme)
-├── lib/          # Utilities
-└── types/        # TypeScript definitions
+├── app/              # Next.js App Router pages
+│   ├── admin/        # Admin panel
+│   ├── api/          # API routes
+│   ├── games/        # Game pages
+│   └── ...
+├── components/       # React components
+│   ├── achievements/ # Achievement badges
+│   ├── admin/        # Admin components
+│   ├── auth/         # Auth components
+│   ├── comments/     # Comment system
+│   ├── notifications/# Notification dropdown
+│   └── ui/           # Generic UI
+├── features/         # Feature modules
+│   ├── auth/         # Auth context
+│   ├── library/      # Library context
+│   └── theme/        # Theme context
+├── lib/              # Utilities
+│   ├── auth.ts       # Session management
+│   ├── oauth.ts      # OAuth utilities
+│   ├── totp.ts       # 2FA utilities
+│   ├── achievements.ts # Achievement system
+│   └── prisma.ts     # Database client
+└── types/            # TypeScript definitions
 ```
 
-## Theme Support
+## API Routes
 
-Playforge supports dark and light themes:
-- **Dark Mode**: Default theme with dark backgrounds
-- **Light Mode**: Bright backgrounds for daytime use
-- **System**: Follows system preference
+### Authentication
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/auth/register` | POST | Create account |
+| `/api/auth/login` | POST | Login |
+| `/api/auth/logout` | POST | Logout |
+| `/api/auth/me` | GET | Current user |
+| `/api/auth/oauth/[provider]` | GET | OAuth initiate |
+| `/api/auth/2fa/enable` | POST | Enable 2FA |
 
-Toggle using the theme switcher in the header.
+### Games
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/games` | GET | List games |
+| `/api/games/[id]` | GET/PUT/DELETE | Game CRUD |
+| `/api/games/[id]/comments` | GET/POST | Comments |
 
-## Admin Access
+### Social
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/leaderboard` | GET | Leaderboards |
+| `/api/achievements` | GET | User achievements |
+| `/api/notifications` | GET/POST | Notifications |
+| `/api/reports` | GET/POST/PATCH | Moderation |
 
-1. Login with admin credentials at `/login`
-2. Access admin panel at `/admin`
-3. Manage games, users, and view stats
+## Deployment
 
-Or create a new admin:
-1. Register a new account at `/register`
-2. Access the database: `npx prisma studio`
-3. Change user role to "ADMIN"
+### Vercel (Recommended)
 
-## Environment Variables
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy
 
-Create a `.env` file:
+### Docker
 
-```env
-DATABASE_URL="file:./dev.db"
-SESSION_SECRET="your-secret-key-change-in-production"
+```bash
+docker-compose up --build
 ```
+
+Note: For Docker, use an external PostgreSQL database.
 
 ## Documentation
 
-- [PRD](./docs/PRD.md) - Product Requirements Document
+- [PRD](./docs/PRD.md) - Product Requirements
 - [Tasks](./docs/TASKS.md) - Implementation Tasks
-- [Memory Bank](./memory-bank/) - Project Context and Decisions
+- [Memory Bank](./memory-bank/) - Project Context
 
 ## Core Principle
 
