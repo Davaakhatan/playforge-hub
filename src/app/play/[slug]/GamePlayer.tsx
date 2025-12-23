@@ -117,10 +117,13 @@ export function GamePlayer({ game }: GamePlayerProps) {
         </div>
       </div>
 
-      {/* Game Container */}
-      <div className="relative flex-1">
+      {/* Game Container - Full viewport minus header */}
+      <div
+        className="relative flex items-center justify-center bg-black"
+        style={{ height: 'calc(100vh - 49px)' }}
+      >
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
             <div className="flex flex-col items-center gap-4">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
               <p className="text-sm text-zinc-400">Loading game...</p>
@@ -171,7 +174,13 @@ export function GamePlayer({ game }: GamePlayerProps) {
           <iframe
             src={game.url}
             title={game.title}
-            className="h-full w-full border-0"
+            className="border-0"
+            style={{
+              width: '100%',
+              height: '100%',
+              maxWidth: 'calc((100vh - 49px) * 16 / 9)',
+              maxHeight: 'calc(100vw * 9 / 16)',
+            }}
             sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
             allow="gamepad; autoplay; fullscreen"
             onLoad={handleIframeLoad}
