@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
 
     // Set session cookie
     const response = NextResponse.redirect(new URL('/', request.url));
-    response.cookies.set('session', sessionToken, {
+    response.cookies.set('playforge_session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
