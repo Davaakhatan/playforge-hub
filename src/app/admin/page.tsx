@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 async function getStats() {
   const [
     totalGames,

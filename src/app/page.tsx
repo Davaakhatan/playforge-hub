@@ -6,6 +6,9 @@ import { FilterSidebar, MobileFilterDrawer, SortSelect } from '@/components/filt
 import { GameGridSkeleton, SearchBarSkeleton } from '@/components/ui/Skeleton';
 import type { GameEntry } from '@/types';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 const GAMES_PER_PAGE = 12;
 
 interface HomePageProps {

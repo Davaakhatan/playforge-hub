@@ -9,8 +9,9 @@ import { ReviewSection } from '@/components/review';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import type { GameEntry } from '@/types';
 
-// ISR: Revalidate every 60 seconds
+// Dynamic rendering with ISR - revalidate every 60 seconds
 export const revalidate = 60;
+export const dynamicParams = true;
 
 interface GamePageProps {
   params: Promise<{ slug: string }>;
@@ -18,11 +19,21 @@ interface GamePageProps {
 
 // Pre-generate pages for all visible games
 export async function generateStaticParams() {
-  const games = await prisma.game.findMany({
-    where: { hidden: false },
-    select: { slug: true },
-  });
-  return games.map((game) => ({ slug: game.slug }));
+  // Skip static generation if DATABASE_URL is not available (e.g., during Vercel build)
+  if (!process.env.DATABASE_URL) {
+    return [];
+  }
+
+  try {
+    const games = await prisma.game.findMany({
+      where: { hidden: false },
+      select: { slug: true },
+    });
+    return games.map((game) => ({ slug: game.slug }));
+  } catch {
+    // Return empty array if database is not available
+    return [];
+  }
 }
 
 function transformGame(game: {

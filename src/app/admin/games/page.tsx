@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { DeleteGameButton } from '@/components/admin/DeleteGameButton';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 async function getGames() {
   return prisma.game.findMany({
     orderBy: { createdAt: 'desc' },

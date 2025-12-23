@@ -1,5 +1,8 @@
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 async function getUsers() {
   return prisma.user.findMany({
     orderBy: { createdAt: 'desc' },

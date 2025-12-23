@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { GameForm } from '@/components/admin/GameForm';
 
+// Force dynamic rendering - requires database at runtime
+export const dynamic = 'force-dynamic';
+
 interface EditGamePageProps {
   params: Promise<{ id: string }>;
 }
