@@ -1,23 +1,71 @@
 import type { GameEntry, FilterOptions } from '@/types';
-import catalogData from '../../../catalog/games.json';
+import { prisma } from '@/lib/prisma';
 
-// Type assertion for JSON import
-const games = catalogData as GameEntry[];
+// Transform database game to GameEntry type
+function transformGame(game: {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  longDescription: string;
+  thumbnail: string;
+  screenshots: string;
+  tags: string;
+  size: string;
+  type: string;
+  releaseStatus: string;
+  url: string;
+  platforms: string;
+  developer: string | null;
+  releaseDate: Date | null;
+  version: string | null;
+  featured: boolean;
+  hidden: boolean;
+}): GameEntry {
+  return {
+    id: game.id,
+    slug: game.slug,
+    title: game.title,
+    shortDescription: game.shortDescription,
+    longDescription: game.longDescription,
+    thumbnail: game.thumbnail,
+    screenshots: JSON.parse(game.screenshots),
+    tags: JSON.parse(game.tags),
+    size: game.size as GameEntry['size'],
+    type: game.type as GameEntry['type'],
+    releaseStatus: game.releaseStatus as GameEntry['releaseStatus'],
+    url: game.url,
+    platforms: JSON.parse(game.platforms),
+    developer: game.developer ?? undefined,
+    releaseDate: game.releaseDate?.toISOString().split('T')[0],
+    version: game.version ?? undefined,
+    featured: game.featured,
+    hidden: game.hidden,
+  };
+}
 
 // Get all non-hidden games
 export async function getAllGames(): Promise<GameEntry[]> {
-  return games.filter(game => !game.hidden);
+  const games = await prisma.game.findMany({
+    where: { hidden: false },
+  });
+  return games.map(transformGame);
 }
 
 // Get a single game by slug
 export async function getGameBySlug(slug: string): Promise<GameEntry | null> {
-  const game = games.find(g => g.slug === slug && !g.hidden);
-  return game ?? null;
+  const game = await prisma.game.findFirst({
+    where: { slug, hidden: false },
+  });
+  return game ? transformGame(game) : null;
 }
 
 // Get all featured games
 export async function getFeaturedGames(): Promise<GameEntry[]> {
-  return games.filter(game => game.featured && !game.hidden);
+  const games = await prisma.game.findMany({
+    where: { featured: true, hidden: false },
+  });
+  return games.map(transformGame);
 }
 
 // Search games by query (searches title, tags, and description)
@@ -25,15 +73,17 @@ export async function searchGames(query: string): Promise<GameEntry[]> {
   const lowerQuery = query.toLowerCase().trim();
   if (!lowerQuery) return getAllGames();
 
-  return games.filter(game => {
-    if (game.hidden) return false;
-
-    const titleMatch = game.title.toLowerCase().includes(lowerQuery);
-    const descMatch = game.shortDescription.toLowerCase().includes(lowerQuery);
-    const tagMatch = game.tags.some(tag => tag.toLowerCase().includes(lowerQuery));
-
-    return titleMatch || descMatch || tagMatch;
+  const games = await prisma.game.findMany({
+    where: {
+      hidden: false,
+      OR: [
+        { title: { contains: lowerQuery, mode: 'insensitive' } },
+        { shortDescription: { contains: lowerQuery, mode: 'insensitive' } },
+        { tags: { contains: lowerQuery, mode: 'insensitive' } },
+      ],
+    },
   });
+  return games.map(transformGame);
 }
 
 // Filter games by various criteria
