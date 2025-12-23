@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-> Log of key architectural decisions for Game Hub
+> Log of key architectural decisions for Playforge
 > Each decision includes context, options considered, and rationale
 
 ---
@@ -68,7 +68,7 @@ Next.js 14+ with App Router.
 ## ADR-003: Static Catalog (v0)
 
 **Date:** 2025-12-22
-**Status:** Accepted
+**Status:** Superseded by ADR-008
 
 ### Context
 Need a data source for the game catalog.
@@ -128,30 +128,33 @@ Games hosted on separate domain/subdomain.
 ## ADR-005: localStorage for Library
 
 **Date:** 2025-12-22
-**Status:** Accepted
+**Status:** Extended (now supports server sync)
 
 ### Context
+
 How to store user's favorites and play history?
 
 ### Options Considered
+
 1. **localStorage:** Browser storage, no backend
 2. **IndexedDB:** More powerful browser storage
 3. **Backend database:** Requires auth, more complex
 
 ### Decision
-localStorage for MVP.
+
+localStorage for anonymous users, database sync for logged-in users.
 
 ### Rationale
-- No backend needed
+
+- No backend needed for anonymous users
 - Instant implementation
 - Works offline
-- Good enough for MVP
-- Can migrate to cloud later with accounts
+- Server sync when authenticated
 
 ### Consequences
-- No cross-device sync
-- Data lost on browser clear
-- Limited storage (~5MB)
+
+- Cross-device sync available for logged-in users
+- Anonymous users still have local-only storage
 
 ---
 
@@ -216,6 +219,134 @@ Sandboxed iframes with minimal permissions.
 
 ---
 
+## ADR-008: SQLite with Prisma ORM
+
+**Date:** 2025-12-22
+**Status:** Accepted
+
+### Context
+
+Need a database solution for storing games, users, and library data.
+
+### Options Considered
+
+1. **PostgreSQL:** Full-featured, requires external service
+2. **MongoDB:** NoSQL, requires external service
+3. **SQLite:** File-based, portable, zero config
+
+### Decision
+
+SQLite with Prisma ORM.
+
+### Rationale
+
+- Zero external dependencies
+- File-based = easy backup and migration
+- Prisma provides excellent DX and type safety
+- Sufficient for expected scale
+- Docker volume makes it persistent
+
+### Consequences
+
+- Limited concurrent write performance (acceptable)
+- Easy to migrate to PostgreSQL later if needed
+
+---
+
+## ADR-009: Session-Based Authentication
+
+**Date:** 2025-12-22
+**Status:** Accepted
+
+### Context
+
+Need authentication for user accounts and admin panel.
+
+### Options Considered
+
+1. **JWT tokens:** Stateless, stored client-side
+2. **Session cookies:** Server-side sessions
+3. **OAuth only:** Third-party providers
+
+### Decision
+
+Session-based authentication with HTTP-only cookies.
+
+### Rationale
+
+- More secure than JWT for web apps
+- Easy to invalidate sessions
+- Works well with Next.js middleware
+- bcrypt for password hashing
+
+### Consequences
+
+- Requires session storage (database)
+- Need to handle session cleanup
+
+---
+
+## ADR-010: Admin Panel Architecture
+
+**Date:** 2025-12-22
+**Status:** Accepted
+
+### Context
+
+Need a way to manage games and users without database access.
+
+### Options Considered
+
+1. **Separate admin app:** Independent deployment
+2. **Integrated admin routes:** Part of main app
+3. **External CMS:** Contentful, Sanity, etc.
+
+### Decision
+
+Integrated admin routes under `/admin/*` path.
+
+### Rationale
+
+- Single deployment
+- Shared authentication
+- Middleware protection easy
+
+### Consequences
+
+- Need role-based access control
+
+---
+
+## ADR-011: Docker Containerization
+
+**Date:** 2025-12-22
+**Status:** Accepted
+
+### Context
+
+Need consistent deployment across environments.
+
+### Options Considered
+
+1. **Vercel:** Easy but vendor lock-in
+2. **Docker:** Portable, self-hosted option
+
+### Decision
+
+Docker with multi-stage build and docker-compose.
+
+### Rationale
+
+- Consistent environments
+- Easy to deploy anywhere
+- Persistent volume for SQLite
+
+### Consequences
+
+- Need Docker knowledge for deployment
+
+---
+
 ## Template for Future Decisions
 
 ```markdown
@@ -225,18 +356,23 @@ Sandboxed iframes with minimal permissions.
 **Status:** Proposed | Accepted | Deprecated | Superseded
 
 ### Context
+
 [What is the issue that we're seeing that is motivating this decision?]
 
 ### Options Considered
+
 1. **Option A:** Description
 2. **Option B:** Description
 
 ### Decision
+
 [What is the decision that was made?]
 
 ### Rationale
+
 [Why was this decision made?]
 
 ### Consequences
+
 [What are the positive and negative consequences?]
 ```

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  playforge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/playforge.db
+      - SESSION_SECRET=${SESSION_SECRET:-your-secret-key-change-in-production}
+    volumes:
+      - playforge_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  playforge_data:
+    driver: local

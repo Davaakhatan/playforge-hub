@@ -1,48 +1,58 @@
 # Tech Stack Reference
 
-> Quick reference for technologies used in Game Hub
+> Quick reference for technologies used in Playforge
 > Last Updated: 2025-12-22
 
 ---
 
 ## Core Stack
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| Framework | Next.js | 14+ | App Router, SSR/SSG |
-| Language | TypeScript | 5+ | Type safety |
-| Styling | Tailwind CSS | 3+ | Utility-first CSS |
-| Runtime | Node.js | 18+ | Server runtime |
-| Package Manager | npm/pnpm | Latest | Dependencies |
+| Category        | Technology      | Version | Purpose                    |
+| --------------- | --------------- | ------- | -------------------------- |
+| Framework       | Next.js         | 15+     | App Router, SSR/SSG        |
+| Language        | TypeScript      | 5+      | Type safety                |
+| Styling         | Tailwind CSS    | 3+      | Utility-first CSS          |
+| Database        | SQLite          | 3+      | Data persistence           |
+| ORM             | Prisma          | 5+      | Database access            |
+| Authentication  | bcryptjs        | 2+      | Password hashing           |
+| Runtime         | Node.js         | 18+     | Server runtime             |
+| Package Manager | npm             | Latest  | Dependencies               |
 
 ---
 
 ## Key Dependencies
 
 ### Required
+
 ```json
 {
-  "next": "^14.0.0",
-  "react": "^18.0.0",
-  "react-dom": "^18.0.0",
-  "typescript": "^5.0.0"
+  "next": "^15.0.0",
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0",
+  "typescript": "^5.0.0",
+  "@prisma/client": "^5.0.0",
+  "bcryptjs": "^2.4.0"
 }
 ```
 
 ### Dev Dependencies
+
 ```json
 {
+  "prisma": "^5.0.0",
+  "@types/bcryptjs": "^2.4.0",
   "tailwindcss": "^3.0.0",
   "postcss": "^8.0.0",
   "autoprefixer": "^10.0.0",
-  "@types/react": "^18.0.0",
+  "@types/react": "^19.0.0",
   "@types/node": "^20.0.0",
-  "eslint": "^8.0.0",
-  "eslint-config-next": "^14.0.0"
+  "eslint": "^9.0.0",
+  "eslint-config-next": "^15.0.0"
 }
 ```
 
-### Optional (Recommended)
+### Utility Libraries
+
 ```json
 {
   "clsx": "^2.0.0",
@@ -52,103 +62,104 @@
 
 ---
 
-## Folder Aliases
+## Database Schema
 
-Configure in `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+```prisma
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  role         String   @default("USER")  // USER or ADMIN
+  createdAt    DateTime @default(now())
+  sessions     Session[]
+  favorites    Favorite[]
+  playHistory  PlayHistory[]
 }
-```
 
-Usage:
-```typescript
-import { GameCard } from '@/components/game/GameCard';
-import { getAllGames } from '@/features/catalog';
-import type { GameEntry } from '@/types';
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Game {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  shortDescription String
+  longDescription  String
+  thumbnail        String
+  screenshots      String   // JSON array
+  tags             String   // JSON array
+  size             String   // mini, medium, big
+  type             String   // web-embed, external, download
+  releaseStatus    String   // prototype, early-access, released
+  url              String
+  platforms        String   // JSON array
+  developer        String?
+  releaseDate      DateTime?
+  version          String?
+  featured         Boolean  @default(false)
+  hidden           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
 ```
 
 ---
 
-## TypeScript Configuration
+## Folder Structure
 
-Key settings for `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-  }
-}
-```
-
----
-
-## Tailwind Configuration
-
-Key additions for `tailwind.config.ts`:
-
-```typescript
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './src/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      // Custom colors, spacing, etc.
-    },
-  },
-  plugins: [],
-}
-
-export default config
-```
-
----
-
-## ESLint Configuration
-
-Extend `.eslintrc.json`:
-
-```json
-{
-  "extends": ["next/core-web-vitals"],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn"
-  }
-}
+```text
+src/
+├── app/                    # Next.js App Router
+│   ├── admin/              # Admin panel
+│   ├── api/                # API routes
+│   │   ├── auth/           # Auth endpoints
+│   │   ├── games/          # Game CRUD
+│   │   └── library/        # Library sync
+│   ├── games/[slug]/       # Game detail
+│   ├── library/            # User library
+│   ├── login/              # Login page
+│   ├── play/[slug]/        # Game player
+│   └── register/           # Register page
+├── components/
+│   ├── admin/              # Admin components
+│   ├── auth/               # Auth components
+│   ├── filter/             # Filter sidebar
+│   ├── game/               # Game components
+│   ├── layout/             # Layout components
+│   ├── search/             # Search bar
+│   └── ui/                 # Generic UI
+├── features/
+│   ├── auth/               # Auth context
+│   └── library/            # Library context
+├── lib/
+│   ├── auth.ts             # Auth utilities
+│   ├── prisma.ts           # Prisma client
+│   └── utils.ts            # Helpers
+└── types/                  # TypeScript types
 ```
 
 ---
 
 ## Environment Variables
 
-Create `.env.local` (not committed):
+Create `.env` file:
 
 ```env
-# Game hosting URL
-NEXT_PUBLIC_GAMES_URL=https://games.yourdomain.com
+# Database
+DATABASE_URL="file:./dev.db"
 
-# Feature flags
-NEXT_PUBLIC_ENABLE_SEARCH=true
+# Session
+SESSION_SECRET="your-secret-key-change-in-production"
 ```
 
 ---
 
 ## Project Scripts
-
-Add to `package.json`:
 
 ```json
 {
@@ -157,106 +168,77 @@ Add to `package.json`:
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
   }
 }
 ```
 
 ---
 
-## Useful Utility Functions
+## Docker Configuration
 
-### cn() - Tailwind class merger
+### Dockerfile
 
-```typescript
-// src/lib/utils.ts
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+- Multi-stage build for smaller image
+- Standalone output mode
+- Non-root user for security
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-```
+### docker-compose.yml
 
-Usage:
-```typescript
-<div className={cn(
-  "base-class",
-  isActive && "active-class",
-  className
-)} />
-```
+- Persistent volume for SQLite database
+- Health check configured
+- Environment variables support
 
 ---
 
-## Common Patterns
+## API Routes
 
-### Server Component (default in App Router)
-```typescript
-// src/app/page.tsx
-import { getAllGames } from '@/features/catalog';
-
-export default async function HomePage() {
-  const games = await getAllGames();
-  return <GameGrid games={games} />;
-}
-```
-
-### Client Component
-```typescript
-// src/components/game/FavoriteButton.tsx
-'use client';
-
-import { useState } from 'react';
-
-export function FavoriteButton({ gameId }: { gameId: string }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  // ...
-}
-```
-
-### Dynamic Route
-```typescript
-// src/app/games/[slug]/page.tsx
-interface Props {
-  params: { slug: string };
-}
-
-export default async function GamePage({ params }: Props) {
-  const game = await getGameBySlug(params.slug);
-  // ...
-}
-```
+| Route                          | Method | Description           |
+| ------------------------------ | ------ | --------------------- |
+| `/api/auth/register`           | POST   | Create new user       |
+| `/api/auth/login`              | POST   | Login user            |
+| `/api/auth/logout`             | POST   | Logout user           |
+| `/api/auth/me`                 | GET    | Get current user      |
+| `/api/games`                   | GET    | List games            |
+| `/api/games`                   | POST   | Create game (admin)   |
+| `/api/games/[id]`              | GET    | Get game              |
+| `/api/games/[id]`              | PUT    | Update game (admin)   |
+| `/api/games/[id]`              | DELETE | Delete game (admin)   |
+| `/api/library/favorites`       | GET    | Get favorites         |
+| `/api/library/favorites`       | POST   | Add favorite          |
+| `/api/library/favorites/[id]`  | DELETE | Remove favorite       |
+| `/api/library/history`         | GET    | Get play history      |
+| `/api/library/history`         | POST   | Record play           |
 
 ---
 
-## Deployment Targets
+## Deployment Options
 
-| Platform | Command | Notes |
-|----------|---------|-------|
-| Vercel | `vercel` | Recommended, zero config |
-| Netlify | `netlify deploy` | Good alternative |
-| Docker | `docker build` | Self-hosted option |
+| Platform | Command                      | Notes                     |
+| -------- | ---------------------------- | ------------------------- |
+| Docker   | `docker-compose up -d`       | Recommended for self-host |
+| Vercel   | `vercel`                     | Need external database    |
+| Node.js  | `npm run build && npm start` | Direct deployment         |
 
 ---
 
 ## Browser Support
 
-Target modern browsers:
 - Chrome 90+
 - Firefox 90+
 - Safari 14+
 - Edge 90+
 
-No IE11 support needed.
-
 ---
 
-## Performance Targets
+## Color Scheme
 
-| Metric | Target |
-|--------|--------|
-| LCP | < 2.5s |
-| FID | < 100ms |
-| CLS | < 0.1 |
-| Lighthouse | 90+ |
+Primary gradient: `from-blue-500 to-cyan-500`
+
+- Primary: Blue (#3B82F6)
+- Secondary: Cyan (#06B6D4)
+- Background: Zinc (#18181B)
+- Text: White/Zinc shades

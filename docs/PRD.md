@@ -1,14 +1,14 @@
-# Game Hub MVP - Product Requirements Document
+# Playforge MVP - Product Requirements Document
 
-> Version: 1.0.0
-> Status: Draft
+> Version: 2.0.0
+> Status: Implemented
 > Last Updated: 2025-12-22
 
 ---
 
 ## 1. Product Overview
 
-**Product Name:** Game Hub (working title)
+**Product Name:** Playforge
 
 **Purpose:**
 A centralized launcher and discovery hub for indie games, similar to a lightweight "mini-Steam" for web and indie builds.
@@ -32,7 +32,7 @@ The hub is **catalog-driven, not page-driven**. Every game—web, download, or e
 ### Non-Goals (MVP)
 - No multiplayer/social features
 - No payments, DRM, or licensing
-- No user accounts or cloud sync
+- ~~No user accounts or cloud sync~~ ✅ **Implemented in v2**
 - No in-launcher native game execution
 - No developer submission portal
 - No analytics or tracking
@@ -287,28 +287,34 @@ interface CatalogAPI {
 
 ## 9. MVP Milestones
 
-### Phase 1: Foundation
-- [ ] Project setup (Next.js, TypeScript, Tailwind)
-- [ ] Folder structure
-- [ ] Type definitions
-- [ ] Static catalog (5 sample games)
+### Phase 1: Foundation ✅ COMPLETE
 
-### Phase 2: Core UI
-- [ ] Store page (game grid)
-- [ ] Game detail page
-- [ ] Game player (iframe embed)
-- [ ] Basic navigation
+- [x] Project setup (Next.js 15, TypeScript, Tailwind)
+- [x] Folder structure
+- [x] Type definitions
+- [x] SQLite database with Prisma ORM (upgraded from static catalog)
 
-### Phase 3: Features
-- [ ] Search functionality
-- [ ] Filter system
-- [ ] Local library (favorites, recent)
+### Phase 2: Core UI ✅ COMPLETE
 
-### Phase 4: Polish
-- [ ] Error handling
-- [ ] Loading states
-- [ ] Responsive design
-- [ ] Performance optimization
+- [x] Store page (game grid with search/filters)
+- [x] Game detail page
+- [x] Game player (iframe embed)
+- [x] Basic navigation (Header, Footer)
+
+### Phase 3: Features ✅ COMPLETE
+
+- [x] Search functionality (debounced, URL-based)
+- [x] Filter system (size, type, status, tags)
+- [x] Local library (favorites, recent)
+- [x] User authentication (session-based)
+- [x] Admin panel (games CRUD, user management)
+
+### Phase 4: Polish ✅ COMPLETE
+
+- [x] Error handling
+- [x] Loading states
+- [x] Responsive design
+- [x] Docker containerization
 
 ---
 

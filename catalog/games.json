@@ -1,0 +1,112 @@
+[
+  {
+    "id": "1",
+    "slug": "pixel-runner",
+    "title": "Pixel Runner",
+    "shortDescription": "An endless runner with retro pixel art aesthetics.",
+    "longDescription": "Pixel Runner is a fast-paced endless runner game featuring beautiful retro pixel art graphics. Dodge obstacles, collect coins, and see how far you can run! Features multiple characters, power-ups, and leaderboards.",
+    "thumbnail": "/images/games/pixel-runner.jpg",
+    "screenshots": [
+      "/images/games/pixel-runner-1.jpg",
+      "/images/games/pixel-runner-2.jpg"
+    ],
+    "tags": ["arcade", "endless-runner", "pixel-art", "casual"],
+    "size": "mini",
+    "type": "web-embed",
+    "releaseStatus": "released",
+    "url": "https://games.example.com/pixel-runner",
+    "platforms": ["web"],
+    "developer": "RetroGames Studio",
+    "releaseDate": "2025-01-10",
+    "version": "1.2.0",
+    "featured": true
+  },
+  {
+    "id": "2",
+    "slug": "space-defender",
+    "title": "Space Defender",
+    "shortDescription": "Defend Earth from alien invasion in this classic shooter.",
+    "longDescription": "Space Defender is a classic top-down space shooter. Control your ship, destroy waves of alien invaders, and protect humanity! Features 50 levels, boss battles, and weapon upgrades.",
+    "thumbnail": "/images/games/space-defender.jpg",
+    "screenshots": [
+      "/images/games/space-defender-1.jpg",
+      "/images/games/space-defender-2.jpg"
+    ],
+    "tags": ["shooter", "arcade", "space", "action"],
+    "size": "mini",
+    "type": "web-embed",
+    "releaseStatus": "released",
+    "url": "https://games.example.com/space-defender",
+    "platforms": ["web"],
+    "developer": "Cosmic Games",
+    "releaseDate": "2025-02-15",
+    "version": "2.0.0",
+    "featured": true
+  },
+  {
+    "id": "3",
+    "slug": "puzzle-quest",
+    "title": "Puzzle Quest",
+    "shortDescription": "A relaxing match-3 puzzle game with RPG elements.",
+    "longDescription": "Puzzle Quest combines classic match-3 gameplay with RPG progression. Level up your character, unlock new abilities, and complete quests through hundreds of puzzles. Perfect for casual gaming sessions.",
+    "thumbnail": "/images/games/puzzle-quest.jpg",
+    "screenshots": [
+      "/images/games/puzzle-quest-1.jpg"
+    ],
+    "tags": ["puzzle", "match-3", "rpg", "casual", "relaxing"],
+    "size": "medium",
+    "type": "web-embed",
+    "releaseStatus": "released",
+    "url": "https://games.example.com/puzzle-quest",
+    "platforms": ["web"],
+    "developer": "Puzzle Masters",
+    "releaseDate": "2024-12-01",
+    "version": "1.5.0",
+    "featured": false
+  },
+  {
+    "id": "4",
+    "slug": "dungeon-crawler-x",
+    "title": "Dungeon Crawler X",
+    "shortDescription": "Explore procedurally generated dungeons in this roguelike.",
+    "longDescription": "Dungeon Crawler X is a challenging roguelike with procedurally generated dungeons. Each run is unique! Find loot, fight monsters, and try to reach the final boss. Permadeath makes every decision matter.",
+    "thumbnail": "/images/games/dungeon-crawler.jpg",
+    "screenshots": [
+      "/images/games/dungeon-crawler-1.jpg",
+      "/images/games/dungeon-crawler-2.jpg",
+      "/images/games/dungeon-crawler-3.jpg"
+    ],
+    "tags": ["roguelike", "dungeon-crawler", "rpg", "action", "indie"],
+    "size": "big",
+    "type": "download",
+    "releaseStatus": "early-access",
+    "url": "https://downloads.example.com/dungeon-crawler-x.zip",
+    "platforms": ["windows", "mac"],
+    "developer": "DarkForge Games",
+    "releaseDate": "2025-03-01",
+    "version": "0.8.0",
+    "featured": true
+  },
+  {
+    "id": "5",
+    "slug": "farm-life",
+    "title": "Farm Life Simulator",
+    "shortDescription": "Build your dream farm in this cozy simulation game.",
+    "longDescription": "Farm Life Simulator lets you build and manage your own farm. Plant crops, raise animals, build relationships with townspeople, and expand your farming empire. A relaxing experience for all ages.",
+    "thumbnail": "/images/games/farm-life.jpg",
+    "screenshots": [
+      "/images/games/farm-life-1.jpg",
+      "/images/games/farm-life-2.jpg"
+    ],
+    "tags": ["simulation", "farming", "cozy", "relaxing", "management"],
+    "size": "big",
+    "type": "external",
+    "releaseStatus": "released",
+    "url": "https://store.steampowered.com/app/example/farm-life",
+    "platforms": ["windows", "mac", "linux"],
+    "developer": "Cozy Games Co",
+    "releaseDate": "2024-10-15",
+    "version": "1.0.0",
+    "featured": false
+  }
+]

@@ -1,106 +1,132 @@
-# Game Hub - Project Context
+# Playforge - Project Context
 
 > This file provides essential context for AI assistants and new contributors.
+> Status: MVP Complete + Extended Features
 > Last Updated: 2025-12-22
 
 ---
 
 ## What is This Project?
 
-**Game Hub** is a centralized launcher and discovery hub for indie games. Think of it as a lightweight "mini-Steam" for web-based and indie game builds.
+**Playforge** is a centralized launcher and discovery hub for indie games. Think of it as a lightweight "mini-Steam" for web-based and indie game builds.
 
 ### Core Philosophy
 
-> *"The launcher is not the game. The launcher is a catalog, navigator, and launcher — nothing else."*
+> *"The launcher is not the game. The launcher is a catalog, navigator, and launcher - nothing else."*
 
 This means:
+
 - The launcher never bundles games into its codebase
 - Games are hosted separately and loaded dynamically
-- Adding a new game = editing the catalog, not writing code
+- Adding a new game = using admin panel or editing database
 - The UI is a thin layer over the catalog data
+
+---
+
+## Current Implementation Status
+
+### Completed Features
+
+- Store page with search and filters
+- Game detail pages with metadata
+- Game player with sandboxed iframe
+- User authentication (session-based)
+- Admin panel for game/user management
+- Local library with favorites and history
+- Server sync for logged-in users
+- Docker containerization
+
+### Tech Stack
+
+| Layer     | Choice         | Rationale                              |
+| --------- | -------------- | -------------------------------------- |
+| Framework | Next.js 15     | App Router, React Server Components    |
+| Language  | TypeScript     | Type safety, better DX                 |
+| Styling   | Tailwind CSS   | Rapid development, consistent design   |
+| Database  | SQLite/Prisma  | Simple, portable, no external services |
+| Auth      | Session-based  | Secure cookies, bcrypt hashing         |
+| State     | React Context  | Simple, sufficient for needs           |
 
 ---
 
 ## Key Architectural Decisions
 
 ### 1. Catalog-Driven Architecture
-**Decision:** All games are defined in a catalog, not as individual pages.
+
+**Decision:** All games are defined in database, not as individual pages.
 **Why:** Enables scaling to hundreds of games without code changes.
-**Trade-off:** Slightly more complex initial setup, but massive long-term maintainability gains.
 
-### 2. Next.js App Router
-**Decision:** Use Next.js 14+ with App Router.
-**Why:** Modern React patterns, good DX, built-in routing, easy deployment.
-**Trade-off:** Slightly larger bundle than pure React, but worth it for features.
+### 2. SQLite with Prisma
 
-### 3. Static Catalog First (v0)
-**Decision:** Start with JSON/TS catalog, migrate to API/CMS later.
-**Why:** Fastest path to working MVP; migration path is clear.
-**Trade-off:** Manual catalog editing for now.
+**Decision:** Use SQLite for data persistence with Prisma ORM.
+**Why:** Simple deployment, no external database services needed.
+
+### 3. Session-Based Authentication
+
+**Decision:** Cookie-based sessions instead of JWT.
+**Why:** More secure for web apps, easier to invalidate.
 
 ### 4. Separate Game Hosting
+
 **Decision:** Games hosted on separate domain/subdomain.
-**Why:** Security isolation, independent scaling, cleaner architecture.
-**Trade-off:** More infrastructure to manage.
+**Why:** Security isolation, independent scaling.
 
-### 5. Local-First Library
-**Decision:** Use localStorage for favorites/history, no accounts.
-**Why:** Simpler MVP, no auth complexity, instant functionality.
-**Trade-off:** No cross-device sync (acceptable for MVP).
+### 5. Docker Support
 
----
-
-## Tech Stack
-
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| Framework | Next.js 14+ | App Router, React Server Components |
-| Language | TypeScript | Type safety, better DX |
-| Styling | Tailwind CSS | Rapid development, consistent design |
-| State | React Context | Simple, sufficient for MVP |
-| Storage | localStorage | No backend needed for library |
-| Catalog | Static JSON | v0 simplicity, clear migration path |
+**Decision:** Multi-stage Docker build with persistent volumes.
+**Why:** Easy deployment, consistent environments.
 
 ---
 
-## Folder Structure Rationale
+## Folder Structure
 
-```
+```text
 src/
-├── app/           # Routes (Next.js convention)
+├── app/           # Routes (Next.js App Router)
+│   ├── admin/     # Admin panel pages
+│   ├── api/       # API routes
+│   ├── games/     # Game detail pages
+│   ├── library/   # User library
+│   ├── login/     # Auth pages
+│   ├── play/      # Game player
+│   └── register/
 ├── components/    # Reusable UI components
-│   ├── ui/        # Generic (Button, Card, Badge)
-│   ├── game/      # Game-specific (GameCard, GamePlayer)
-│   └── layout/    # Layout (Header, Footer)
-├── features/      # Feature modules with logic
-│   ├── catalog/   # Catalog data access
-│   ├── library/   # Local library logic
-│   └── search/    # Search & filter logic
+│   ├── admin/     # Admin-specific components
+│   ├── auth/      # Auth components (UserMenu)
+│   ├── filter/    # Filter sidebar
+│   ├── game/      # Game components
+│   ├── layout/    # Layout (Header, Footer)
+│   ├── search/    # Search bar
+│   └── ui/        # Generic UI (Button, Input, Badge)
+├── features/      # Feature modules
+│   ├── auth/      # Auth context
+│   ├── catalog/   # Catalog access (legacy)
+│   └── library/   # Library context
 ├── lib/           # Utilities
+│   ├── auth.ts    # Auth utilities
+│   ├── prisma.ts  # Prisma client
+│   └── utils.ts   # General utilities
 └── types/         # TypeScript definitions
 ```
 
-**Why this structure?**
-- Colocation of related code
-- Clear separation of concerns
-- Easy to find things
-- Scales well as project grows
-
 ---
 
-## Game Types Explained
+## Game Types
 
 ### Web-Embed
+
 - HTML5 games loaded in sandboxed iframe
 - Hosted on separate subdomain
-- Example: Simple browser games, Phaser/PixiJS games
+- Example: Browser games, Phaser/PixiJS games
 
 ### External
+
 - Links to external platforms (Steam, itch.io)
 - Opens in new tab
 - Launcher just redirects
 
 ### Download
+
 - Direct download links
 - Installer or ZIP files
 - Hosted on CDN or external storage
@@ -110,37 +136,37 @@ src/
 ## Security Model
 
 1. **Iframe Sandbox:** Web games run with restricted permissions
-2. **CSP Headers:** Strict Content-Security-Policy on launcher
-3. **Domain Isolation:** Games on separate origin from launcher
-4. **Error Boundaries:** Broken games can't crash launcher
+2. **Session Auth:** Secure HTTP-only cookies
+3. **Password Hashing:** bcrypt with salt rounds
+4. **Admin Protection:** Middleware-protected routes
+5. **CSRF Protection:** Built into session handling
 
 ---
 
-## What NOT to Do
+## Quick Reference
 
-- Don't bundle games into the launcher codebase
-- Don't create individual page files for each game
-- Don't add user accounts in MVP
-- Don't over-engineer; keep it simple
-- Don't forget mobile users
+### Adding a New Game
 
----
+1. Login as admin at `/login`
+2. Go to `/admin/games`
+3. Click "Add Game"
+4. Fill in game details
+5. Save - game appears immediately
 
-## Success Metrics (MVP)
+### Running Locally
 
-1. Can add games by editing catalog only
-2. Store loads fast with 50+ games
-3. Web games load in safe iframes
-4. No refactor needed to scale
+```bash
+npm install
+npx prisma migrate dev
+npx prisma db seed
+npm run dev
+```
 
----
+### Running with Docker
 
-## Quick Reference: Adding a New Game
-
-1. Open `catalog/games.json`
-2. Add new entry following schema
-3. Host game assets separately
-4. Done - no code changes needed
+```bash
+docker-compose up --build
+```
 
 ---
 
@@ -149,4 +175,4 @@ src/
 - [PRD.md](../docs/PRD.md) - Full product requirements
 - [TASKS.md](../docs/TASKS.md) - Implementation tasks
 - [DECISIONS.md](./DECISIONS.md) - Architectural decisions log
-- [PROGRESS.md](./PROGRESS.md) - Development progress
+- [TECH_STACK.md](./TECH_STACK.md) - Technology reference
