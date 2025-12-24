@@ -3,13 +3,15 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
 // GET /api/collections - Get user's collections
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const gameId = searchParams.get('gameId');
 
     const collections = await prisma.collection.findMany({
       where: { userId: user.id },
@@ -32,6 +34,24 @@ export async function GET(_request: NextRequest) {
         },
       },
     });
+
+    // If gameId is provided, add hasGame flag to each collection
+    if (gameId) {
+      const collectionsWithGame = await prisma.collectionGame.findMany({
+        where: {
+          gameId,
+          collection: { userId: user.id },
+        },
+        select: { collectionId: true },
+      });
+      const collectionIdsWithGame = new Set(collectionsWithGame.map(c => c.collectionId));
+
+      const result = collections.map(collection => ({
+        ...collection,
+        hasGame: collectionIdsWithGame.has(collection.id),
+      }));
+      return NextResponse.json(result);
+    }
 
     return NextResponse.json(collections);
   } catch (error) {

@@ -34,11 +34,20 @@ interface Favorite {
   game: { slug: string; title: string; thumbnail: string };
 }
 
+interface HighScore {
+  id: string;
+  score: number;
+  wave: number | null;
+  createdAt: Date;
+  game: { slug: string; title: string; thumbnail: string };
+}
+
 interface ProfileContentProps {
   user: User;
   stats: Stats;
   recentPlays: PlayHistory[];
   recentFavorites: Favorite[];
+  highScores: HighScore[];
 }
 
 export function ProfileContent({
@@ -46,6 +55,7 @@ export function ProfileContent({
   stats,
   recentPlays,
   recentFavorites,
+  highScores,
 }: ProfileContentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState(user.bio || '');
@@ -251,6 +261,77 @@ export function ProfileContent({
             </p>
           )}
         </div>
+      </div>
+
+      {/* High Scores */}
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
+          High Scores
+        </h2>
+        {highScores.length > 0 ? (
+          <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-zinc-200 bg-zinc-50 text-left text-sm dark:border-zinc-800 dark:bg-zinc-800">
+                  <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Game</th>
+                  <th className="px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400">Score</th>
+                  <th className="hidden px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400 sm:table-cell">Wave</th>
+                  <th className="hidden px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400 md:table-cell">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {highScores.map((score, index) => (
+                  <tr
+                    key={score.id}
+                    className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+                  >
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/games/${score.game.slug}`}
+                        className="flex items-center gap-3 hover:text-blue-600 dark:hover:text-blue-400"
+                      >
+                        <div className="relative h-10 w-16 overflow-hidden rounded bg-zinc-200 dark:bg-zinc-700">
+                          <Image
+                            src={score.game.thumbnail}
+                            alt={score.game.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {index === 0 && <span className="text-lg">🏆</span>}
+                          {index === 1 && <span className="text-lg">🥈</span>}
+                          {index === 2 && <span className="text-lg">🥉</span>}
+                          <span className="font-medium text-zinc-900 dark:text-white">
+                            {score.game.title}
+                          </span>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        {score.score.toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="hidden px-4 py-3 text-right text-zinc-500 dark:text-zinc-400 sm:table-cell">
+                      {score.wave ? `Wave ${score.wave}` : '-'}
+                    </td>
+                    <td className="hidden px-4 py-3 text-right text-zinc-500 dark:text-zinc-400 md:table-cell">
+                      {new Date(score.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-zinc-200 bg-white p-6 text-center dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-zinc-500 dark:text-zinc-400">No high scores yet</p>
+            <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+              Play some games to see your scores here!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

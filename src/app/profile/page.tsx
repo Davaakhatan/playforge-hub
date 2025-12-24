@@ -23,8 +23,8 @@ export default async function ProfilePage() {
     prisma.collection.count({ where: { userId: user.id } }),
   ]);
 
-  // Fetch recent activity
-  const [recentPlays, recentFavorites] = await Promise.all([
+  // Fetch recent activity and high scores
+  const [recentPlays, recentFavorites, highScores] = await Promise.all([
     prisma.playHistory.findMany({
       where: { userId: user.id },
       include: { game: { select: { slug: true, title: true, thumbnail: true } } },
@@ -36,6 +36,13 @@ export default async function ProfilePage() {
       include: { game: { select: { slug: true, title: true, thumbnail: true } } },
       orderBy: { createdAt: 'desc' },
       take: 5,
+    }),
+    prisma.gameScore.findMany({
+      where: { userId: user.id },
+      include: { game: { select: { slug: true, title: true, thumbnail: true } } },
+      orderBy: { score: 'desc' },
+      take: 5,
+      distinct: ['gameId'],
     }),
   ]);
 
@@ -52,6 +59,7 @@ export default async function ProfilePage() {
       stats={stats}
       recentPlays={recentPlays}
       recentFavorites={recentFavorites}
+      highScores={highScores}
     />
   );
 }

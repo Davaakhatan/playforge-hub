@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/Button';
 import { SizeBadge, TypeBadge, StatusBadge, TagBadge } from '@/components/ui/Badge';
-import { FavoriteButton, ScreenshotGallery, ViewTracker, GameLeaderboard } from '@/components/game';
+import { FavoriteButton, ScreenshotGallery, ViewTracker, GameLeaderboard, AddToCollectionButton } from '@/components/game';
 import { ReviewSection } from '@/components/review';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import type { GameEntry } from '@/types';
@@ -202,12 +202,12 @@ export default async function GamePage({ params }: GamePageProps) {
         {/* Main Content */}
         <div className="lg:col-span-2">
           {/* Hero Image */}
-          <div className="relative mb-6 aspect-video overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-800">
+          <div className="relative mb-6 aspect-video overflow-hidden rounded-xl bg-zinc-900">
             <Image
               src={game.thumbnail}
               alt={game.title}
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
@@ -251,6 +251,7 @@ export default async function GamePage({ params }: GamePageProps) {
             <div className="flex gap-2">
               {getActionButton()}
               <FavoriteButton gameId={game.id} size="lg" />
+              <AddToCollectionButton gameId={game.id} size="lg" />
             </div>
 
             {/* Tags */}
